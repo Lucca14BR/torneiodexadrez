@@ -7,18 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root {
-  --bg: #e8e0c8;
-  --card: #f5f0e0;
-  --dark: #1a1a1a;
-  --gold: #c9a84c;
-  --border: #d9d0b8;
-  --light-sq: #f0d9b5;
-  --dark-sq: #b58863;
-  --selected: #7fc97f;
-  --possible: rgba(0, 180, 0, 0.4);
-  --last-move: rgba(255, 210, 0, 0.5);
-}
+:root{--bg:#e8e0c8;--card:#f5f0e0;--dark:#1a1a1a;--gold:#c9a84c;--border:#d9d0b8;--light-sq:#f0d9b5;--dark-sq:#b58863;--selected:#7fc97f;--possible:rgba(0,180,0,0.4);--last-move:rgba(255,210,0,0.5);}
 body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-height:100vh}
 .header{background:var(--dark);color:var(--bg);padding:14px 28px;display:flex;align-items:center;gap:14px;border-bottom:4px solid var(--gold)}
 .header h1{font-family:'Bebas Neue',cursive;font-size:30px;letter-spacing:2px;color:var(--gold)}
@@ -49,8 +38,8 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
 .sq.possible.has-piece::after{width:56px;height:56px;background:rgba(0,160,0,0.22);border-radius:50%}
 .sq.last-move{background:var(--last-move)!important}
 .sq.in-check{background:rgba(220,40,40,.75)!important}
-.chess-side{display:flex;flex-direction:column;gap:10px;min-width:265px;max-width:310px}
-side-card{background:var(--card);border-radius:10px;border:1.5px solid var(--border);padding:11px 13px}
+.chess-side{display:flex;flex-direction:column;gap:10px;min-width:265px;max-width:320px}
+.side-card{background:var(--card);border-radius:10px;border:1.5px solid var(--border);padding:11px 13px}
 .side-title{font-family:'Bebas Neue',cursive;font-size:15px;letter-spacing:1px;border-bottom:2px solid var(--gold);padding-bottom:3px;margin-bottom:8px}
 .sel-label{font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;display:block}
 .player-sel{border:2px solid var(--dark);border-radius:6px;padding:5px 8px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;background:var(--bg);color:var(--dark);cursor:pointer;width:100%;margin-bottom:7px}
@@ -114,16 +103,21 @@ side-card{background:var(--card);border-radius:10px;border:1.5px solid var(--bor
 .pgn-text{background:var(--dark);color:#7aff7a;border-radius:6px;padding:12px;font-family:monospace;font-size:12px;white-space:pre-wrap;max-height:260px;overflow-y:auto;margin-bottom:12px;min-width:min(480px,80vw)}
 .fen-input{width:100%;border:2px solid var(--dark);border-radius:6px;padding:7px 10px;font-family:monospace;font-size:12px;background:var(--bg);color:var(--dark);margin-bottom:6px}
 .info-box{background:var(--card);border-radius:10px;padding:14px 18px;border:1px solid var(--border);font-size:13px;color:#555;line-height:1.8}
+.eval-bar-vertical{width:14px;background:#1a1a1a;border-radius:4px;position:relative;overflow:hidden;border:2px solid #000;align-self:stretch}
+.eval-bar-fill{width:100%;background:#fff;position:absolute;bottom:0;transition:height .5s ease}
 </style>
 </head>
 <body>
+
 <div class="header">
   <span style="font-size:28px">♟</span>
   <div><h1>Torneio dos Titãs</h1><p>Boinardo · Tigran · Henrick · João Boi — Partidas Rápidas</p></div>
 </div>
+
 <div class="tabs">
   <button class="tab active" onclick="showTab('jogadores',this)">Jogadores</button>
   <button class="tab" onclick="showTab('tabuleiro',this)">Tabuleiro</button>
+  <button class="tab" onclick="showTab('estudo',this)">Análise</button>
   <button class="tab" onclick="showTab('historico',this)">Histórico</button>
   <button class="tab" onclick="showTab('partidas',this)">Partidas</button>
   <button class="tab" onclick="showTab('tabela',this)">Classificação</button>
@@ -137,59 +131,83 @@ side-card{background:var(--card);border-radius:10px;border:1.5px solid var(--bor
     <div class="player-card"><div class="rank-badge">#3</div><div class="p-avatar" style="background:#ffe0b2;border-color:#e67300">🐍</div><div class="p-name">Henrick</div><div class="p-rating">2477</div><div class="p-label">Rating Rápidas</div><div class="p-tag">🧠 Astuto</div></div>
     <div class="player-card"><div class="rank-badge">#4</div><div class="p-avatar" style="background:#b8cfe8;border-color:#2255aa">🐂</div><div class="p-name">João Boi</div><div class="p-rating">2468</div><div class="p-label">Rating Rápidas</div><div class="p-tag">💪 Guerreiro</div></div>
   </div>
-  <div class="info-box"><strong>Formato:</strong> Round Robin · 6 partidas · Vitória=1pt · Empate=0.5pt<br><strong>Engine:</strong> Minimax + Alpha-Beta + Quiescence + Tabelas de posição · 4 níveis de dificuldade<br><strong>Extras:</strong> Reprodutor de lances · Flip board · Abertura detectada · Sons · Exportar PGN</div>
+  <div class="info-box"><strong>Formato:</strong> Round Robin · 6 partidas · Vitória=1pt · Empate=0.5pt<br><strong>Engine:</strong> Minimax + Alpha-Beta + Quiescence + Tabelas de posição · 4 níveis<br><strong>Extras:</strong> Aba de Análise (Sandbox) · Flip board · Abertura detectada · Sons · Exportar PGN · Temas visuais</div>
 </div>
 
 <!-- TABULEIRO -->
 <div id="tab-tabuleiro" class="section">
   <div class="chess-layout">
-    <div class="board-wrap">
+    <div class="board-wrap" id="board-wrap-main">
       <div id="coords-top" style="display:flex;padding-left:20px;margin-bottom:1px"></div>
-      <div style="display:flex;align-items:stretch">
+      <div style="display:flex;align-items:stretch;gap:6px">
         <div id="coords-left" style="display:flex;flex-direction:column;width:20px"></div>
+        <div class="eval-bar-vertical"><div class="eval-bar-fill" id="eval-bar-fill" style="height:50%"></div></div>
         <div id="chess-board"></div>
         <div id="coords-right" style="display:flex;flex-direction:column;width:20px"></div>
       </div>
       <div id="coords-bottom" style="display:flex;padding-left:20px;margin-top:1px"></div>
       <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center">
         <button class="btn-sm" onclick="flipBoard()">⟳ Flip</button>
-        <button class="btn-sm" onclick="exportAllPgn()">⬇ Exportar PGNs</button>
-        <span id="thinking-indicator" style="display:none;font-size:12px;color:#888;font-style:italic">🤖 Calculando...</span>
+        <button class="btn-sm" onclick="showFenLoad()">📥 Carregar FEN</button>
+        <button class="btn-sm" onclick="showPgnModal()">📄 PGN</button>
+        <button class="btn-sm" onclick="exportAllPgn()">⬇ Exportar</button>
+        <div style="flex:1"></div>
+        <button class="btn-icon" onclick="navMove(0)">⏮</button>
+        <button class="btn-icon" onclick="navMove(-1)">◀</button>
+        <button class="btn-icon" onclick="navMove(1)">▶</button>
+        <button class="btn-icon" onclick="navMove(999)">⏭</button>
       </div>
     </div>
+
     <div class="chess-side">
       <div class="side-card">
         <div class="side-title">Configurar Partida</div>
-        <span class="sel-label">Brancas ♔</span>
-        <select class="player-sel" id="sel-white">
-          <option value="0">🐄 Boinardo (2534)</option><option value="1">🐯 Tigran (2498)</option>
-          <option value="2">🐍 Henrick (2477)</option><option value="3">🐂 João Boi (2468)</option>
-          <option value="4">🤖 Computador</option>
-        </select>
-        <span class="sel-label">Pretas ♚</span>
-        <select class="player-sel" id="sel-black">
-          <option value="0">🐄 Boinardo (2534)</option><option value="1" selected>🐯 Tigran (2498)</option>
-          <option value="2">🐍 Henrick (2477)</option><option value="3">🐂 João Boi (2468)</option>
-          <option value="4">🤖 Computador</option>
-        </select>
-        <span class="sel-label">Tempo</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <span class="sel-label">Brancas ♔</span>
+            <select class="player-sel" id="sel-white" onchange="toggleEngineConfig()">
+              <option value="0">🐄 Boinardo</option><option value="1">🐯 Tigran</option>
+              <option value="2">🐍 Henrick</option><option value="3">🐂 João Boi</option>
+              <option value="4">🤖 Computador</option>
+            </select>
+          </div>
+          <div>
+            <span class="sel-label">Pretas ♚</span>
+            <select class="player-sel" id="sel-black" onchange="toggleEngineConfig()">
+              <option value="0">🐄 Boinardo</option><option value="1" selected>🐯 Tigran</option>
+              <option value="2">🐍 Henrick</option><option value="3">🐂 João Boi</option>
+              <option value="4">🤖 Computador</option>
+            </select>
+          </div>
+        </div>
+        <div id="engine-config" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+          <span class="sel-label">Nível do Titã</span>
+          <div class="diff-row">
+            <button class="diff-btn" onclick="setDiff(1,this)">Fácil</button>
+            <button class="diff-btn active" onclick="setDiff(2,this)">Médio</button>
+            <button class="diff-btn" onclick="setDiff(3,this)">Difícil</button>
+            <button class="diff-btn" onclick="setDiff(4,this)">Titã 🔥</button>
+          </div>
+          <div id="diff-desc" style="font-size:10px;color:#888;text-align:center">Nível Médio: Estrategista</div>
+        </div>
+        <span class="sel-label" style="margin-top:8px">Tempo</span>
         <select class="player-sel" id="sel-time">
           <option value="0">Sem relógio</option><option value="180">3 min (Bullet)</option>
           <option value="300" selected>5 min (Blitz)</option><option value="600">10 min (Rápidas)</option>
-          <option value="900">15 min</option>
         </select>
         <button class="btn btn-dark btn-full" onclick="startGame()">Nova Partida ♟</button>
       </div>
-      <div class="side-card" id="engine-config" style="display:none">
-        <div class="side-title">Dificuldade</div>
-        <div class="diff-row">
-          <button class="diff-btn" onclick="setDiff(1,this)">Fácil</button>
-          <button class="diff-btn active" onclick="setDiff(2,this)">Médio</button>
-          <button class="diff-btn" onclick="setDiff(3,this)">Difícil</button>
-          <button class="diff-btn" onclick="setDiff(4,this)">Titã</button>
-        </div>
-        <div id="diff-desc" style="font-size:11px;color:#888;text-align:center">Profundidade 3 · Bom estrategista</div>
+
+      <div class="side-card">
+        <div class="side-title">Visual</div>
+        <select class="player-sel" id="sel-theme" onchange="mudarTema(this.value)">
+          <option value="classico">Clássico (Bege)</option>
+          <option value="noturno">Noturno 🌙</option>
+          <option value="oceano">Oceano 🌊</option>
+          <option value="esmeralda">Esmeralda 🌳</option>
+        </select>
       </div>
+
       <div class="side-card">
         <div class="side-title">Relógio</div>
         <div class="clocks">
@@ -197,37 +215,33 @@ side-card{background:var(--card);border-radius:10px;border:1.5px solid var(--bor
           <div class="clock-box" id="clock-b"><div class="clock-label">♚ Pretas</div><div class="clock-time" id="clock-b-time">—</div></div>
         </div>
       </div>
+
       <div class="side-card">
-        <div class="side-title">Status</div>
-        <div class="status-box" id="status-box">Selecione os jogadores e inicie!</div>
+        <div class="status-box" id="status-box">Selecione e inicie!</div>
         <div class="opening-box" id="opening-box">—</div>
         <button class="btn btn-red btn-full" onclick="resignGame()" id="resign-btn" style="display:none;margin-top:6px">Abandonar</button>
       </div>
-      <div class="side-card" id="engine-card" style="display:none">
+
+      <div class="side-card">
+        <div class="side-title">Lances</div>
+        <div class="move-list" id="move-list"><span style="color:#bbb;font-size:11px">Sem lances ainda</span></div>
+      </div>
+
+      <div class="side-card">
         <div class="side-title">Avaliação</div>
         <div class="engine-score" id="engine-score">0.0</div>
         <div class="engine-bar"><div class="engine-fill" id="engine-fill" style="width:50%"></div></div>
         <div style="font-size:11px;color:#888;margin-top:3px;text-align:center" id="engine-hint"></div>
       </div>
-      <div class="side-card">
-        <div class="side-title">Lances</div>
-        <div class="move-list" id="move-list"><span style="color:#bbb;font-size:11px">Sem lances ainda</span></div>
-        <div class="nav-row">
-          <button class="btn-icon" onclick="navMove(0)" title="Início">⏮</button>
-          <button class="btn-icon" onclick="navMove(-1)" title="Anterior">◀</button>
-          <button class="btn-icon" onclick="navMove(1)" title="Próximo">▶</button>
-          <button class="btn-icon" onclick="navMove(999)" title="Fim">⏭</button>
-        </div>
-      </div>
+
       <div class="side-card">
         <div class="side-title">FEN Atual</div>
         <div class="code-box" id="fen-display">rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1</div>
         <div class="copy-row">
           <button class="btn-sm" onclick="copyText('fen-display')">Copiar FEN</button>
-          <button class="btn-sm" onclick="showPgnModal()">Ver PGN</button>
-          <button class="btn-sm" onclick="showFenLoad()">Carregar FEN</button>
         </div>
       </div>
+
       <div class="side-card">
         <div class="side-title">Capturadas</div>
         <div id="captured-white" style="font-size:15px;min-height:20px;margin-bottom:2px">♔: </div>
@@ -237,17 +251,61 @@ side-card{background:var(--card);border-radius:10px;border:1.5px solid var(--bor
   </div>
 </div>
 
- <div class="side-card">
-  <div class="side-title">Visual</div>
-  <span class="sel-label">Tema do Tabuleiro</span>
-  <select class="player-sel" id="sel-theme" onchange="mudarTema(this.value)">
-    <option value="classico">Clássico (Madeira)</option>
-    <option value="noturno">Noturno (Lichess) 🌙</option>
-    <option value="oceano">Oceano (Azul) 🌊</option>
-    <option value="esmeralda">Esmeralda (Verde) 🌳</option>
-  </select>
+<!-- ANÁLISE (SANDBOX) -->
+<div id="tab-estudo" class="section">
+  <div class="chess-layout">
+    <div>
+      <div id="estudo-coords-top" style="display:flex;padding-left:20px;margin-bottom:1px"></div>
+      <div style="display:flex;align-items:stretch;gap:6px">
+        <div id="estudo-coords-left" style="display:flex;flex-direction:column;width:20px"></div>
+        <div id="estudo-chess-board" style="display:grid;grid-template-columns:repeat(8,60px);grid-template-rows:repeat(8,60px);border:3px solid var(--dark);border-radius:4px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.25)"></div>
+        <div id="estudo-coords-right" style="display:flex;flex-direction:column;width:20px"></div>
+      </div>
+      <div id="estudo-coords-bottom" style="display:flex;padding-left:20px;margin-top:1px"></div>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn-sm" onclick="flipEstudo()">⟳ Flip</button>
+        <button class="btn-sm" onclick="resetSandbox()" style="background:var(--dark);color:var(--gold);border-color:var(--gold)">🧹 Reiniciar</button>
+        <button class="btn-sm" onclick="showFenLoadEstudo()">📥 Carregar FEN</button>
+        <div style="flex:1"></div>
+        <button class="btn-icon" onclick="navEstudo(0)">⏮</button>
+        <button class="btn-icon" onclick="navEstudo(-1)">◀</button>
+        <button class="btn-icon" onclick="navEstudo(1)">▶</button>
+        <button class="btn-icon" onclick="navEstudo(999)">⏭</button>
+      </div>
+    </div>
+
+    <div class="chess-side">
+      <div class="side-card" style="background:#1e1e1e;border-color:#333">
+        <div class="side-title" style="color:#ddd;border-color:#444">🔍 Análise do Motor</div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:8px">
+          <span>Profundidade 3</span>
+          <span id="estudo-score" style="color:#7aff7a;font-weight:bold">+0.0</span>
+        </div>
+        <button class="btn btn-full" onclick="analisarLinhas()" style="background:#333;color:#7aff7a;border:1px solid #444;margin-bottom:8px">▶ Calcular Melhores Linhas</button>
+        <div id="linhas-analise" style="display:flex;flex-direction:column;gap:6px">
+          <div style="color:#666;font-size:12px;text-align:center;padding:10px">Clique em calcular para ver as variantes...</div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">Lances no Sandbox</div>
+        <div class="move-list" id="estudo-move-list"><span style="color:#bbb;font-size:11px">Faça um lance para começar</span></div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">FEN do Sandbox</div>
+        <div class="code-box" id="estudo-fen-display">rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1</div>
+        <div class="copy-row"><button class="btn-sm" onclick="copyText('estudo-fen-display')">Copiar FEN</button></div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">Dica de Ouro</div>
+        <div style="font-size:13px;color:var(--dark);font-weight:700">O xadrez é 99% tática! Sempre verifique xeques, capturas e ameaças antes de mover.</div>
+      </div>
+    </div>
+  </div>
 </div>
-  
+
 <!-- HISTÓRICO -->
 <div id="tab-historico" class="section">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
@@ -293,16 +351,30 @@ side-card{background:var(--card);border-radius:10px;border:1.5px solid var(--bor
   </div>
 </div>
 
+<!-- MODAL FEN ESTUDO -->
+<div class="modal-overlay" id="fen-estudo-modal">
+  <div class="modal-box">
+    <h3>Carregar FEN no Sandbox</h3>
+    <input class="fen-input" id="fen-estudo-input" placeholder="Cole um FEN aqui..." onkeydown="if(event.key==='Enter')loadFenEstudo()"/>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn-sm" onclick="loadFenEstudo()">Carregar</button>
+      <button class="btn-sm" onclick="document.getElementById('fen-estudo-modal').classList.remove('show')">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
+// ═══════════════════════════════════════════════════
+// DADOS GLOBAIS
+// ═══════════════════════════════════════════════════
 const PLAYERS=[{name:'Boinardo',rating:2534,emoji:'🐄'},{name:'Tigran',rating:2498,emoji:'🐯'},{name:'Henrick',rating:2477,emoji:'🐍'},{name:'João Boi',rating:2468,emoji:'🐂'},{name:'Computador',rating:0,emoji:'🤖'}];
 const tourneyMatches=[];
 for(let i=0;i<4;i++)for(let j=i+1;j<4;j++)tourneyMatches.push({p1:i,p2:j,result:null});
 const gameHistory=[];
 const GLYPHS={'P':'♙','R':'♖','N':'♘','B':'♗','Q':'♕','K':'♔','p':'♟','r':'♜','n':'♞','b':'♝','q':'♛','k':'♚'};
 
-// PST Tables
 const PST_P=[[0,0,0,0,0,0,0,0],[50,50,50,50,50,50,50,50],[10,10,20,30,30,20,10,10],[5,5,10,25,25,10,5,5],[0,0,0,20,20,0,0,0],[5,-5,-10,0,0,-10,-5,5],[5,10,10,-20,-20,10,10,5],[0,0,0,0,0,0,0,0]];
 const PST_N=[[-50,-40,-30,-30,-30,-30,-40,-50],[-40,-20,0,0,0,0,-20,-40],[-30,0,10,15,15,10,0,-30],[-30,5,15,20,20,15,5,-30],[-30,0,15,20,20,15,0,-30],[-30,5,10,15,15,10,5,-30],[-40,-20,0,5,5,0,-20,-40],[-50,-40,-30,-30,-30,-30,-40,-50]];
 const PST_B=[[-20,-10,-10,-10,-10,-10,-10,-20],[-10,0,0,0,0,0,0,-10],[-10,0,5,10,10,5,0,-10],[-10,5,5,10,10,5,5,-10],[-10,0,10,10,10,10,0,-10],[-10,10,10,10,10,10,10,-10],[-10,5,0,0,0,0,5,-10],[-20,-10,-10,-10,-10,-10,-10,-20]];
@@ -310,23 +382,49 @@ const PST_R=[[0,0,0,0,0,0,0,0],[5,10,10,10,10,10,10,5],[-5,0,0,0,0,0,0,-5],[-5,0
 const PST_Q=[[-20,-10,-10,-5,-5,-10,-10,-20],[-10,0,0,0,0,0,0,-10],[-10,0,5,5,5,5,0,-10],[-5,0,5,5,5,5,0,-5],[0,0,5,5,5,5,0,-5],[-10,5,5,5,5,5,0,-10],[-10,0,5,0,0,0,0,-10],[-20,-10,-10,-5,-5,-10,-10,-20]];
 const PST_KM=[[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-20,-30,-30,-40,-40,-30,-30,-20],[-10,-20,-20,-20,-20,-20,-20,-10],[20,20,0,0,0,0,20,20],[20,30,10,0,0,10,30,20]];
 const PST_KE=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,20,20,0,0,0],[0,0,0,20,20,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];
-
 const OPENINGS={'e2e4':'Peão do Rei','d2d4':'Peão da Dama','c2c4':'Inglesa','g1f3':'Réti','e2e4 e7e5':'Defesa ao Peão do Rei','e2e4 c7c5':'Siciliana','e2e4 e7e6':'Francesa','e2e4 c7c6':'Caro-Kann','e2e4 d7d5':'Escandinava','e2e4 g8f6':'Alekhine','d2d4 d7d5':'Peão da Dama Declinado','d2d4 g8f6':'Indiana','d2d4 d7d5 c2c4':'Gambit da Dama','e2e4 e7e5 g1f3 b8c6 f1b5':'Ruy Lopez','e2e4 e7e5 g1f3 b8c6 f1c4':'Italiana','e2e4 c7c5 g1f3 d7d6':'Siciliana Najdorf','d2d4 d7d5 c2c4 e7e6':'Gambit da Dama Declinado','d2d4 d7d5 c2c4 d5c4':'Gambit da Dama Aceito'};
+const DIFF={1:{depth:1,noise:200,label:'Profundidade 1 · Iniciante'},2:{depth:3,noise:30,label:'Profundidade 3 · Estrategista'},3:{depth:4,noise:5,label:'Profundidade 4 · Forte'},4:{depth:5,noise:0,label:'Profundidade 5 · Titã 🔥'}};
 
-// State
+// ═══════════════════════════════════════════════════
+// ESTADO DO JOGO PRINCIPAL
+// ═══════════════════════════════════════════════════
 let board,turn,selected,possibleMoves,gameActive,lastMove,castling,enPassant,moveHistory,capturedW,capturedB,fullMoveNumber,halfMoveClock;
 let clockW,clockB,clockInterval,clockEnabled,engineEnabled=false,boardFlipped=false;
 let engineDepth=3,engineNoise=30,navIndex=-1,boardSnapshots=[];
 
-const DIFF={
-  1:{depth:1,noise:200,label:'Profundidade 1 · Iniciante'},
-  2:{depth:2,noise:30,label:'Profundidade 2 · Estrategista'},
-  3:{depth:3,noise:5,label:'Profundidade 3 · Forte'},
-  4:{depth:4,noise:0,label:'Profundidade 4 · Titã 🔥'}
-};
+// ═══════════════════════════════════════════════════
+// ESTADO DO SANDBOX (ANÁLISE) — SEPARADO DO JOGO REAL
+// ═══════════════════════════════════════════════════
+let sandoBoard,sandoTurn,sandoSelected,sandoPossible,sandoLastMove,sandoCastling,sandoEP,sandoMoveHistory,sandoSnapshots,sandoNavIndex,sandoFlipped=false;
 
-function setDiff(d,btn){const c=DIFF[d];engineDepth=c.depth;engineNoise=c.noise;document.getElementById('diff-desc').textContent=c.label;document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function initSandbox(){
+  sandoBoard=[['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],[null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']];
+  sandoTurn='w';sandoSelected=null;sandoPossible=[];sandoLastMove=null;
+  sandoCastling={wK:true,wQ:true,bK:true,bQ:true};sandoEP=null;sandoMoveHistory=[];
+  sandoSnapshots=[saveSandoSnap()];sandoNavIndex=-1;
+}
 
+function saveSandoSnap(){return{board:sandoBoard.map(r=>[...r]),turn:sandoTurn,castling:{...sandoCastling},ep:sandoEP?[...sandoEP]:null,lm:sandoLastMove?{...sandoLastMove}:null,mh:[...sandoMoveHistory]};}
+function restoreSandoSnap(s){sandoBoard=s.board.map(r=>[...r]);sandoTurn=s.turn;sandoCastling={...s.castling};sandoEP=s.ep?[...s.ep]:null;sandoLastMove=s.lm?{...s.lm}:null;sandoMoveHistory=[...s.mh];}
+
+// ═══════════════════════════════════════════════════
+// TABS — FIX 1: ESTRUTURA LIMPA, SEM ERROS DE SINTAXE
+// ═══════════════════════════════════════════════════
+function showTab(name,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('visible'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  const alvo=document.getElementById('tab-'+name);
+  if(alvo)alvo.classList.add('visible');
+  if(btn)btn.classList.add('active');
+  if(name==='tabela')renderStandings();
+  if(name==='tabuleiro'){renderCoords();renderBoard();}
+  if(name==='historico')renderHistory();
+  if(name==='estudo'){renderSandoCoords();renderSandoBoard();analisarLinhas();}
+}
+
+// ═══════════════════════════════════════════════════
+// JOGO PRINCIPAL — INIT E SNAPSHOT
+// ═══════════════════════════════════════════════════
 function initBoard(){
   board=[['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],[null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']];
   turn='w';selected=null;possibleMoves=[];lastMove=null;gameActive=false;moveHistory=[];capturedW=[];capturedB=[];
@@ -334,20 +432,32 @@ function initBoard(){
   boardSnapshots=[saveSnap()];
 }
 
-function saveSnap(){return{board:board.map(r=>[...r]),turn,castling:{...castling},ep:enPassant?[...enPassant]:null,hm:halfMoveClock,fm:fullMoveNumber,cW:[...capturedW],cB:[...capturedB]};}
-function restoreSnap(s){board=s.board.map(r=>[...r]);turn=s.turn;castling={...s.castling};enPassant=s.ep?[...s.ep]:null;halfMoveClock=s.hm;fullMoveNumber=s.fm;capturedW=[...s.cW];capturedB=[...s.cB];}
+function saveSnap(){return{board:board.map(r=>[...r]),turn,castling:{...castling},ep:enPassant?[...enPassant]:null,hm:halfMoveClock,fm:fullMoveNumber,cW:[...capturedW],cB:[...capturedB],lm:lastMove?{...lastMove}:null};}
 
-function showTab(name,btn){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('visible'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('visible');
-  if(btn)btn.classList.add('active');
-  if(name==='tabela')renderStandings();
-  if(name==='tabuleiro'){renderCoords();renderBoard();}
-  if(name==='historico')renderHistory();
+function restoreSnap(s){
+  board=s.board.map(r=>[...r]);turn=s.turn;castling={...s.castling};
+  enPassant=s.ep?[...s.ep]:null;halfMoveClock=s.hm;fullMoveNumber=s.fm;
+  capturedW=[...s.cW];capturedB=[...s.cB];lastMove=s.lm?{...s.lm}:null;
 }
 
-// CLOCK
+// ═══════════════════════════════════════════════════
+// DIFICULDADE
+// ═══════════════════════════════════════════════════
+function setDiff(d,btn){
+  const c=DIFF[d];engineDepth=c.depth;engineNoise=c.noise;
+  document.getElementById('diff-desc').textContent=c.label;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleEngineConfig(){
+  const w=document.getElementById('sel-white').value,b=document.getElementById('sel-black').value;
+  document.getElementById('engine-config').style.display=(w=='4'||b=='4')?'block':'none';
+}
+
+// ═══════════════════════════════════════════════════
+// RELÓGIO
+// ═══════════════════════════════════════════════════
 function startClock(){
   clearInterval(clockInterval);if(!clockEnabled)return;
   clockInterval=setInterval(()=>{
@@ -365,6 +475,7 @@ function startClock(){
     }
   },100);
 }
+
 function updateClockDisplay(){
   const fmt=s=>{const m=Math.floor(Math.max(0,s)/60),sc=Math.floor(Math.max(0,s)%60);return m+':'+(sc<10?'0':'')+sc;};
   document.getElementById('clock-w-time').textContent=clockEnabled?fmt(clockW):'—';
@@ -373,7 +484,9 @@ function updateClockDisplay(){
   document.getElementById('clock-b').className='clock-box'+(turn==='b'&&gameActive?' active-clock':'')+(clockEnabled&&clockB<30?' low-time':'');
 }
 
-// SOUND
+// ═══════════════════════════════════════════════════
+// SONS
+// ═══════════════════════════════════════════════════
 let audioCtx=null;
 function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
 function playSound(type){
@@ -387,46 +500,142 @@ function playSound(type){
   }catch(e){}
 }
 
-// BOARD RENDER
+// ═══════════════════════════════════════════════════
+// RENDER — TABULEIRO PRINCIPAL
+// ═══════════════════════════════════════════════════
 function flipBoard(){boardFlipped=!boardFlipped;renderCoords();renderBoard();}
+
 function renderCoords(){
   const files=boardFlipped?['h','g','f','e','d','c','b','a']:['a','b','c','d','e','f','g','h'];
   const ranks=boardFlipped?['1','2','3','4','5','6','7','8']:['8','7','6','5','4','3','2','1'];
-  ['top','bottom'].forEach(pos=>{const el=document.getElementById('coords-'+pos);el.innerHTML='';files.forEach(f=>{const s=document.createElement('span');s.className='coord';s.style.cssText='width:60px;font-size:12px';s.textContent=f;el.appendChild(s);});});
-  ['left','right'].forEach(pos=>{const el=document.getElementById('coords-'+pos);el.innerHTML='';ranks.forEach(r=>{const s=document.createElement('span');s.className='coord';s.style.cssText='height:60px;font-size:12px';s.textContent=r;el.appendChild(s);});});
+  ['top','bottom'].forEach(pos=>{
+    const el=document.getElementById('coords-'+pos);if(!el)return;el.innerHTML='';
+    files.forEach(f=>{const s=document.createElement('span');s.className='coord';s.style.cssText='width:60px;font-size:12px';s.textContent=f;el.appendChild(s);});
+  });
+  ['left','right'].forEach(pos=>{
+    const el=document.getElementById('coords-'+pos);if(!el)return;el.innerHTML='';
+    ranks.forEach(r=>{const s=document.createElement('span');s.className='coord';s.style.cssText='height:60px;font-size:12px';s.textContent=r;el.appendChild(s);});
+  });
 }
 
 function renderBoard(snap){
   const el=document.getElementById('chess-board');if(!el)return;
   const b=snap?snap.board:board;
+  const lm=snap?snap.lm:lastMove;
   el.innerHTML='';
-  for(let vr=0;vr<8;vr++){for(let vc=0;vc<8;vc++){
-    const r=boardFlipped?7-vr:vr,c=boardFlipped?7-vc:vc;
-    const sq=document.createElement('div');
-    sq.className='sq '+((r+c)%2===0?'light':'dark');
-    if(!snap&&selected&&selected[0]===r&&selected[1]===c)sq.classList.add('selected');
-    if(!snap&&possibleMoves.some(m=>m[0]===r&&m[1]===c)){sq.classList.add('possible');if(b[r][c])sq.classList.add('has-piece');}
-    const lm=snap?null:lastMove;
-    if(lm&&((lm.fr===r&&lm.fc===c)||(lm.tr===r&&lm.tc===c)))sq.classList.add('last-move');
-    const p=b[r][c];
-    if(p){sq.textContent=GLYPHS[p];if(!snap&&((p==='K'&&isInCheck('w'))||(p==='k'&&isInCheck('b'))))sq.classList.add('in-check');}
-    if(gameActive&&!snap)sq.onclick=()=>handleClick(r,c);else if(!snap)sq.style.cursor='default';
-    el.appendChild(sq);
-  }}
-  if(!snap){updateFenDisplay();if(engineEnabled)updateEngine();}
+  for(let vr=0;vr<8;vr++){
+    for(let vc=0;vc<8;vc++){
+      const r=boardFlipped?7-vr:vr,c=boardFlipped?7-vc:vc;
+      const sq=document.createElement('div');
+      sq.className='sq '+((r+c)%2===0?'light':'dark');
+      if(!snap&&selected&&selected[0]===r&&selected[1]===c)sq.classList.add('selected');
+      if(!snap&&possibleMoves.some(m=>m[0]===r&&m[1]===c)){sq.classList.add('possible');if(b[r][c])sq.classList.add('has-piece');}
+      if(lm&&((lm.fr===r&&lm.fc===c)||(lm.tr===r&&lm.tc===c)))sq.classList.add('last-move');
+      const p=b[r][c];
+      if(p){sq.textContent=GLYPHS[p];if(!snap&&((p==='K'&&isInCheck('w'))||(p==='k'&&isInCheck('b'))))sq.classList.add('in-check');}
+      if(!snap&&gameActive)sq.onclick=()=>handleClick(r,c);else if(!snap)sq.style.cursor='default';
+      el.appendChild(sq);
+    }
+  }
+  if(!snap){updateFenDisplay();updateEngineDisplay();}
 }
 
+// ═══════════════════════════════════════════════════
+// RENDER — SANDBOX
+// ═══════════════════════════════════════════════════
+function flipEstudo(){sandoFlipped=!sandoFlipped;renderSandoCoords();renderSandoBoard();}
+
+function renderSandoCoords(){
+  const files=sandoFlipped?['h','g','f','e','d','c','b','a']:['a','b','c','d','e','f','g','h'];
+  const ranks=sandoFlipped?['1','2','3','4','5','6','7','8']:['8','7','6','5','4','3','2','1'];
+  ['top','bottom'].forEach(pos=>{
+    const el=document.getElementById('estudo-coords-'+pos);if(!el)return;el.innerHTML='';
+    files.forEach(f=>{const s=document.createElement('span');s.className='coord';s.style.cssText='width:60px;font-size:12px';s.textContent=f;el.appendChild(s);});
+  });
+  ['left','right'].forEach(pos=>{
+    const el=document.getElementById('estudo-coords-'+pos);if(!el)return;el.innerHTML='';
+    ranks.forEach(r=>{const s=document.createElement('span');s.className='coord';s.style.cssText='height:60px;font-size:12px';s.textContent=r;el.appendChild(s);});
+  });
+}
+
+function renderSandoBoard(snap){
+  const el=document.getElementById('estudo-chess-board');if(!el)return;
+  const b=snap?snap.board:sandoBoard;
+  const lm=snap?snap.lm:sandoLastMove;
+  el.innerHTML='';
+  for(let vr=0;vr<8;vr++){
+    for(let vc=0;vc<8;vc++){
+      const r=sandoFlipped?7-vr:vr,c=sandoFlipped?7-vc:vc;
+      const sq=document.createElement('div');
+      sq.className='sq '+((r+c)%2===0?'light':'dark');
+      if(!snap&&sandoSelected&&sandoSelected[0]===r&&sandoSelected[1]===c)sq.classList.add('selected');
+      if(!snap&&sandoPossible.some(m=>m[0]===r&&m[1]===c)){sq.classList.add('possible');if(b[r][c])sq.classList.add('has-piece');}
+      if(lm&&((lm.fr===r&&lm.fc===c)||(lm.tr===r&&lm.tc===c)))sq.classList.add('last-move');
+      const p=b[r][c];
+      if(p){sq.textContent=GLYPHS[p];if(!snap&&((p==='K'&&sandoIsInCheck('w'))||(p==='k'&&sandoIsInCheck('b'))))sq.classList.add('in-check');}
+      sq.onclick=()=>handleSandoClick(r,c);
+      el.appendChild(sq);
+    }
+  }
+  const fenEl=document.getElementById('estudo-fen-display');
+  if(fenEl)fenEl.textContent=sandoBoardToFen();
+}
+
+// ═══════════════════════════════════════════════════
+// CLICK — JOGO PRINCIPAL (FIX 2 e 3)
+// ═══════════════════════════════════════════════════
 function handleClick(r,c){
-  if(!gameActive||navIndex!==-1)return;
+  if(!gameActive)return;
   const wi=+document.getElementById('sel-white').value,bi=+document.getElementById('sel-black').value;
   if((turn==='w'&&wi===4)||(turn==='b'&&bi===4))return;
+
+  // FIX 3: Se estiver no passado e clicar em uma peça, corta o futuro
+  if(navIndex!==-1){
+    boardSnapshots=boardSnapshots.slice(0,navIndex+1);
+    moveHistory=moveHistory.slice(0,navIndex);
+    restoreSnap(boardSnapshots[boardSnapshots.length-1]);
+    navIndex=-1;
+    selected=null;possibleMoves=[];
+    updateMoveList();
+  }
+
   const p=board[r][c];
-  if(selected){const[sr,sc]=selected;if(possibleMoves.some(m=>m[0]===r&&m[1]===c)){doMove(sr,sc,r,c);return;}selected=null;possibleMoves=[];}
+  if(selected){
+    const[sr,sc]=selected;
+    if(possibleMoves.some(m=>m[0]===r&&m[1]===c)){doMove(sr,sc,r,c);return;}
+    selected=null;possibleMoves=[];
+  }
   if(p&&sideOf(p)===turn){selected=[r,c];possibleMoves=getLegalMoves(r,c);}
   renderBoard();
 }
 
-// CHESS LOGIC
+// ═══════════════════════════════════════════════════
+// CLICK — SANDBOX
+// ═══════════════════════════════════════════════════
+function handleSandoClick(r,c){
+  // Se estiver no passado, corta o futuro
+  if(sandoNavIndex!==-1){
+    sandoSnapshots=sandoSnapshots.slice(0,sandoNavIndex+1);
+    sandoMoveHistory=sandoMoveHistory.slice(0,sandoNavIndex);
+    restoreSandoSnap(sandoSnapshots[sandoSnapshots.length-1]);
+    sandoNavIndex=-1;
+    sandoSelected=null;sandoPossible=[];
+    updateSandoMoveList();
+  }
+
+  const p=sandoBoard[r][c];
+  if(sandoSelected){
+    const[sr,sc]=sandoSelected;
+    if(sandoPossible.some(m=>m[0]===r&&m[1]===c)){doSandoMove(sr,sc,r,c);return;}
+    sandoSelected=null;sandoPossible=[];
+  }
+  if(p&&sideOf(p)===sandoTurn){sandoSelected=[r,c];sandoPossible=sandoGetLegal(r,c);}
+  renderSandoBoard();
+}
+
+// ═══════════════════════════════════════════════════
+// LÓGICA DE XADREZ — COMPARTILHADA (usa `board` global)
+// ═══════════════════════════════════════════════════
 function isW(p){return p&&p===p.toUpperCase()}
 function sideOf(p){if(!p)return null;return isW(p)?'w':'b'}
 
@@ -492,6 +701,69 @@ function hasLegal(side){
   return false;
 }
 
+// ═══════════════════════════════════════════════════
+// LÓGICA DE XADREZ — SANDBOX (usa sandoBoard)
+// ═══════════════════════════════════════════════════
+function sandoRawBase(r,c){
+  const b=sandoBoard,epan=sandoEP,p=b[r][c];if(!p)return[];
+  const side=sideOf(p),moves=[],type=p.toLowerCase(),dir=side==='w'?-1:1;
+  const inB=(r,c)=>r>=0&&r<8&&c>=0&&c<8;
+  const slide=(dr,dc)=>{let nr=r+dr,nc=c+dc;while(inB(nr,nc)){if(!b[nr][nc])moves.push([nr,nc]);else{if(sideOf(b[nr][nc])!==side)moves.push([nr,nc]);break;}nr+=dr;nc+=dc;}};
+  if(type==='p'){
+    if(inB(r+dir,c)&&!b[r+dir][c]){moves.push([r+dir,c]);if(r===(side==='w'?6:1)&&!b[r+dir*2][c])moves.push([r+dir*2,c]);}
+    for(const dc of[-1,1]){const nr=r+dir,nc=c+dc;if(inB(nr,nc)){if(b[nr][nc]&&sideOf(b[nr][nc])!==side)moves.push([nr,nc]);if(epan&&epan[0]===nr&&epan[1]===nc)moves.push([nr,nc]);}}
+  }else if(type==='n'){for(const[dr,dc]of[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]){const nr=r+dr,nc=c+dc;if(inB(nr,nc)&&sideOf(b[nr][nc])!==side)moves.push([nr,nc]);}}
+  else if(type==='b'){slide(-1,-1);slide(-1,1);slide(1,-1);slide(1,1);}
+  else if(type==='r'){slide(-1,0);slide(1,0);slide(0,-1);slide(0,1);}
+  else if(type==='q'){slide(-1,-1);slide(-1,1);slide(1,-1);slide(1,1);slide(-1,0);slide(1,0);slide(0,-1);slide(0,1);}
+  else if(type==='k'){for(const[dr,dc]of[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]){const nr=r+dr,nc=c+dc;if(inB(nr,nc)&&sideOf(b[nr][nc])!==side)moves.push([nr,nc]);}}
+  return moves;
+}
+
+function sandoIsInCheck(side){
+  let kr=-1,kc=-1;const king=side==='w'?'K':'k';
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(sandoBoard[r][c]===king){kr=r;kc=c;}
+  if(kr<0)return false;
+  const opp=side==='w'?'b':'w';
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(sideOf(sandoBoard[r][c])===opp&&sandoRawBase(r,c).some(([tr,tc])=>tr===kr&&tc===kc))return true;
+  return false;
+}
+
+function sandoTestSafe(fr,fc,tr,tc,side){
+  const sv=sandoBoard[tr][tc],p=sandoBoard[fr][fc];sandoBoard[tr][tc]=p;sandoBoard[fr][fc]=null;
+  const safe=!sandoIsInCheck(side);sandoBoard[fr][fc]=p;sandoBoard[tr][tc]=sv;return safe;
+}
+
+function sandoGetRaw(r,c){
+  const moves=sandoRawBase(r,c),p=sandoBoard[r][c];if(!p)return moves;const side=sideOf(p);
+  if(p.toLowerCase()==='k'){
+    if(side==='w'&&r===7&&c===4&&!sandoIsInCheck('w')){
+      if(sandoCastling.wK&&!sandoBoard[7][5]&&!sandoBoard[7][6]&&sandoBoard[7][7]==='R'&&sandoTestSafe(7,4,7,5,'w'))moves.push([7,6]);
+      if(sandoCastling.wQ&&!sandoBoard[7][3]&&!sandoBoard[7][2]&&!sandoBoard[7][1]&&sandoBoard[7][0]==='R'&&sandoTestSafe(7,4,7,3,'w'))moves.push([7,2]);
+    }
+    if(side==='b'&&r===0&&c===4&&!sandoIsInCheck('b')){
+      if(sandoCastling.bK&&!sandoBoard[0][5]&&!sandoBoard[0][6]&&sandoBoard[0][7]==='r'&&sandoTestSafe(0,4,0,5,'b'))moves.push([0,6]);
+      if(sandoCastling.bQ&&!sandoBoard[0][3]&&!sandoBoard[0][2]&&!sandoBoard[0][1]&&sandoBoard[0][0]==='r'&&sandoTestSafe(0,4,0,3,'b'))moves.push([0,2]);
+    }
+  }
+  return moves;
+}
+
+function sandoGetLegal(r,c){
+  return sandoGetRaw(r,c).filter(([tr,tc])=>{
+    const sv=sandoBoard[tr][tc],svEP=sandoEP,p=sandoBoard[r][c];
+    sandoBoard[tr][tc]=p;sandoBoard[r][c]=null;
+    let epCap=null;
+    if(p.toLowerCase()==='p'&&sandoEP&&tr===sandoEP[0]&&tc===sandoEP[1]){epCap=sandoBoard[r][tc];sandoBoard[r][tc]=null;}
+    const safe=!sandoIsInCheck(sideOf(p));
+    sandoBoard[r][c]=p;sandoBoard[tr][tc]=sv;if(epCap)sandoBoard[r][tc]=epCap;sandoEP=svEP;
+    return safe;
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// FAZER LANCE — JOGO PRINCIPAL
+// ═══════════════════════════════════════════════════
 async function doMove(fr,fc,tr,tc){
   const p=board[fr][fc],cap=board[tr][tc],side=sideOf(p);
   let special='',isCap=!!cap,epCap=null;
@@ -517,26 +789,93 @@ async function doMove(fr,fc,tr,tc){
   renderBoard();updateMoveList();updateCaptured();updateStatus();updateOpening();
   const wi=+document.getElementById('sel-white').value,bi=+document.getElementById('sel-black').value;
   if(gameActive&&((turn==='w'&&wi===4)||(turn==='b'&&bi===4))){
-    document.getElementById('thinking-indicator').style.display='inline';
-    setTimeout(()=>{doComputerMove();document.getElementById('thinking-indicator').style.display='none';},50);
+    document.getElementById('thinking-indicator')?document.getElementById('thinking-indicator').style.display='inline':'';
+    setTimeout(()=>{doComputerMove();},50);
   }
 }
 
-// NAV
+// ═══════════════════════════════════════════════════
+// FAZER LANCE — SANDBOX
+// ═══════════════════════════════════════════════════
+function doSandoMove(fr,fc,tr,tc){
+  const p=sandoBoard[fr][fc],cap=sandoBoard[tr][tc],side=sideOf(p);
+  let special='',isCap=!!cap,epCap=null;
+  if(p.toLowerCase()==='p'&&sandoEP&&tr===sandoEP[0]&&tc===sandoEP[1]){epCap=sandoBoard[fr][tc];sandoBoard[fr][tc]=null;isCap=true;}
+  sandoBoard[tr][tc]=p;sandoBoard[fr][fc]=null;
+  if(p==='K'){sandoCastling.wK=false;sandoCastling.wQ=false;if(tc===6){sandoBoard[7][5]=sandoBoard[7][7];sandoBoard[7][7]=null;special='O-O';}if(tc===2){sandoBoard[7][3]=sandoBoard[7][0];sandoBoard[7][0]=null;special='O-O-O';}}
+  if(p==='k'){sandoCastling.bK=false;sandoCastling.bQ=false;if(tc===6){sandoBoard[0][5]=sandoBoard[0][7];sandoBoard[0][7]=null;special='O-O';}if(tc===2){sandoBoard[0][3]=sandoBoard[0][0];sandoBoard[0][0]=null;special='O-O-O';}}
+  if(p==='P'&&tr===0)sandoBoard[tr][tc]='Q';
+  if(p==='p'&&tr===7)sandoBoard[tr][tc]='q';
+  sandoEP=null;if(p==='P'&&fr-tr===2)sandoEP=[fr-1,fc];if(p==='p'&&tr-fr===2)sandoEP=[fr+1,fc];
+  sandoLastMove={fr,fc,tr,tc};sandoSelected=null;sandoPossible=[];
+  const F='abcdefgh',RK='87654321',toSq=F[tc]+RK[tr];
+  let notation=special||(p==='P'||p==='p'?(isCap?F[fc]+'x'+toSq:toSq):(p.toUpperCase()+(isCap?'x':'')+toSq));
+  sandoMoveHistory.push({notation,from:F[fc]+RK[fr],to:toSq});
+  sandoSnapshots.push(saveSandoSnap());sandoNavIndex=-1;
+  sandoTurn=sandoTurn==='w'?'b':'w';
+  playSound(isCap?'capture':'move');
+  renderSandoBoard();updateSandoMoveList();analisarLinhas();
+}
+
+// ═══════════════════════════════════════════════════
+// NAVEGAÇÃO — JOGO PRINCIPAL (FIX 2)
+// ═══════════════════════════════════════════════════
 function navMove(delta){
   if(!boardSnapshots.length)return;
   const live=boardSnapshots.length-1;
   if(navIndex===-1)navIndex=live;
   navIndex=delta===0?0:delta===999?live:Math.max(0,Math.min(live,navIndex+delta));
-  if(navIndex===live){navIndex=-1;renderBoard();updateMoveList();}
-  else{renderBoard(boardSnapshots[navIndex]);highlightMove(navIndex-1);}
+  if(navIndex===live){
+    navIndex=-1;
+    restoreSnap(boardSnapshots[live]); // FIX 2: sincroniza o estado real
+    renderBoard();updateMoveList();
+  } else {
+    restoreSnap(boardSnapshots[navIndex]); // FIX 2: sincroniza o estado real
+    renderBoard(boardSnapshots[navIndex]);
+    highlightMove(navIndex-1);
+  }
 }
 
-function highlightMove(idx){
-  document.querySelectorAll('.move-w,.move-b').forEach((el,i)=>el.classList.toggle('active-move',i===idx));
+function navTo(idx){
+  navIndex=Math.min(idx+1,boardSnapshots.length-1);
+  if(navIndex>=boardSnapshots.length-1){
+    navIndex=-1;
+    restoreSnap(boardSnapshots[boardSnapshots.length-1]); // FIX 2
+    renderBoard();updateMoveList();
+  } else {
+    restoreSnap(boardSnapshots[navIndex]); // FIX 2
+    renderBoard(boardSnapshots[navIndex]);
+    highlightMove(idx);
+  }
 }
 
-// ENGINE
+function highlightMove(idx){document.querySelectorAll('.move-w,.move-b').forEach((el,i)=>el.classList.toggle('active-move',i===idx));}
+
+// ═══════════════════════════════════════════════════
+// NAVEGAÇÃO — SANDBOX (FIX 2 aplicado aqui também)
+// ═══════════════════════════════════════════════════
+function navEstudo(delta){
+  if(!sandoSnapshots.length)return;
+  const live=sandoSnapshots.length-1;
+  if(sandoNavIndex===-1)sandoNavIndex=live;
+  sandoNavIndex=delta===0?0:delta===999?live:Math.max(0,Math.min(live,sandoNavIndex+delta));
+  if(sandoNavIndex===live){
+    sandoNavIndex=-1;
+    restoreSandoSnap(sandoSnapshots[live]);
+    renderSandoBoard();updateSandoMoveList();
+  } else {
+    restoreSandoSnap(sandoSnapshots[sandoNavIndex]);
+    renderSandoBoard(sandoSnapshots[sandoNavIndex]);
+    highlightSandoMove(sandoNavIndex-1);
+  }
+  analisarLinhas();
+}
+
+function highlightSandoMove(idx){document.querySelectorAll('#estudo-move-list .move-w, #estudo-move-list .move-b').forEach((el,i)=>el.classList.toggle('active-move',i===idx));}
+
+// ═══════════════════════════════════════════════════
+// ENGINE — PARA O JOGO PRINCIPAL
+// ═══════════════════════════════════════════════════
 const PV2={'p':100,'n':320,'b':330,'r':500,'q':900,'k':20000};
 
 function getPST(p,r,c){
@@ -547,189 +886,206 @@ function getPST(p,r,c){
   return 0;
 }
 
-// 1. AVALIAÇÃO DO TABULEIRO
-function evalBoard() {
-    let s = 0; const wP = Array(8).fill(0), bP = Array(8).fill(0);
-    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
-        const p = board[r][c]; if (!p) continue;
-        const v = (PV2[p.toLowerCase()] || 0) + getPST(p, r, c);
-        s += isW(p) ? v : -v;
-        if (p === 'P') wP[c]++; if (p === 'p') bP[c]++;
-    }
-    for (let c = 0; c < 8; c++) {
-        if (wP[c] > 1) s -= 20 * (wP[c] - 1); if (wP[c] === 1 && (c === 0 || wP[c - 1] === 0) && (c === 7 || wP[c + 1] === 0)) s -= 15;
-        if (bP[c] > 1) s += 20 * (bP[c] - 1); if (bP[c] === 1 && (c === 0 || bP[c - 1] === 0) && (c === 7 || bP[c + 1] === 0)) s += 15;
-    }
-    return s;
+function evalBoard(){
+  let s=0;const wP=Array(8).fill(0),bP=Array(8).fill(0);
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=board[r][c];if(!p)continue;
+    const v=(PV2[p.toLowerCase()]||0)+getPST(p,r,c);
+    s+=isW(p)?v:-v;
+    if(p==='P')wP[c]++;if(p==='p')bP[c]++;
+  }
+  for(let c=0;c<8;c++){
+    if(wP[c]>1)s-=20*(wP[c]-1);if(wP[c]===1&&(c===0||wP[c-1]===0)&&(c===7||wP[c+1]===0))s-=15;
+    if(bP[c]>1)s+=20*(bP[c]-1);if(bP[c]===1&&(c===0||bP[c-1]===0)&&(c===7||bP[c+1]===0))s+=15;
+  }
+  return s;
 }
 
-// 2. GERADOR DE LANCES ORDENADOS
-function allMoves(side) {
-    const m = [];
-    for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-            if (sideOf(board[r][c]) === side) {
-                for (const [tr, tc] of getLegalMoves(r, c)) m.push([r, c, tr, tc]);
-            }
-        }
-    }
-    return m.sort((a, b) => {
-        const pA = board[a[2]][a[3]];
-        const pB = board[b[2]][b[3]];
-        const vA = pA ? (PV2[pA.toLowerCase()] || 0) : 0;
-        const vB = pB ? (PV2[pB.toLowerCase()] || 0) : 0;
-        return vB - vA;
-    });
+function allMoves(side){
+  const m=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(sideOf(board[r][c])===side)for(const[tr,tc]of getLegalMoves(r,c))m.push([r,c,tr,tc]);
+  return m.sort((a,b)=>(PV2[board[b[2]][b[3]]?.toLowerCase()]||0)-(PV2[board[a[2]][a[3]]?.toLowerCase()]||0));
 }
 
-// 3. SIMULADOR DE LANCES (COM TRAVA DE SEGURANÇA E ROQUE)
-function makeE(fr, fc, tr, tc) {
-    const p = board[fr][fc];
-    if (!p) return null; // Trava contra o erro do toLowerCase!
-
-    const sv = {
-        p: p,
-        cap: board[tr][tc],
-        ep: enPassant,
-        cast: { ...castling },
-        hm: halfMoveClock
-    };
-
-    board[tr][tc] = p;
-    board[fr][fc] = null;
-
-    if (p === 'P' && tr === 0) board[tr][tc] = 'Q';
-    if (p === 'p' && tr === 7) board[tr][tc] = 'q';
-
-    if (p.toLowerCase() === 'k') {
-        if (p === 'K') { castling.wK = false; castling.wQ = false; }
-        else { castling.bK = false; castling.bQ = false; }
-        
-        if (Math.abs(fc - tc) === 2) {
-            if (tc === 6) { board[fr][5] = board[fr][7]; board[fr][7] = null; }
-            else if (tc === 2) { board[fr][3] = board[fr][0]; board[fr][0] = null; }
-        }
-    }
-    
-    if (p === 'R') { if (fc === 7) castling.wK = false; if (fc === 0) castling.wQ = false; }
-    if (p === 'r') { if (fc === 7) castling.bK = false; if (fc === 0) castling.bQ = false; }
-
-    enPassant = (p.toLowerCase() === 'p' && Math.abs(fr - tr) === 2) ? [(fr + tr) / 2, fc] : null;
-    halfMoveClock = (p.toLowerCase() === 'p' || sv.cap) ? 0 : halfMoveClock + 1;
-    return sv;
+function makeE(fr,fc,tr,tc){
+  const p=board[fr][fc];if(!p)return null;
+  const sv={p,cap:board[tr][tc],ep:enPassant,cast:{...castling},hm:halfMoveClock};
+  board[tr][tc]=p;board[fr][fc]=null;
+  if(p==='P'&&tr===0)board[tr][tc]='Q';if(p==='p'&&tr===7)board[tr][tc]='q';
+  if(p.toLowerCase()==='k'){
+    if(p==='K'){castling.wK=false;castling.wQ=false;}else{castling.bK=false;castling.bQ=false;}
+    if(Math.abs(fc-tc)===2){if(tc===6){board[fr][5]=board[fr][7];board[fr][7]=null;}else if(tc===2){board[fr][3]=board[fr][0];board[fr][0]=null;}}
+  }
+  if(p==='R'){if(fc===7)castling.wK=false;if(fc===0)castling.wQ=false;}
+  if(p==='r'){if(fc===7)castling.bK=false;if(fc===0)castling.bQ=false;}
+  enPassant=(p.toLowerCase()==='p'&&Math.abs(fr-tr)===2)?[(fr+tr)/2,fc]:null;
+  halfMoveClock=(p.toLowerCase()==='p'||sv.cap)?0:halfMoveClock+1;
+  return sv;
 }
 
-// 4. DESFAZER SIMULAÇÃO (LIMPANDO FANTASMAS)
-function undoE(fr, fc, tr, tc, sv) {
-    if (!sv) return;
-    board[fr][fc] = sv.p;
-    board[tr][tc] = sv.cap;
-    
-    if (sv.p.toLowerCase() === 'k' && Math.abs(fc - tc) === 2) {
-        if (tc === 6) { board[fr][7] = board[fr][5]; board[fr][5] = null; }
-        else if (tc === 2) { board[fr][0] = board[fr][3]; board[fr][3] = null; }
-    }
-
-    enPassant = sv.ep;
-    Object.assign(castling, sv.cast);
-    halfMoveClock = sv.hm;
+function undoE(fr,fc,tr,tc,sv){
+  if(!sv)return;
+  board[fr][fc]=sv.p;board[tr][tc]=sv.cap;
+  if(sv.p.toLowerCase()==='k'&&Math.abs(fc-tc)===2){if(tc===6){board[fr][7]=board[fr][5];board[fr][5]=null;}else if(tc===2){board[fr][0]=board[fr][3];board[fr][3]=null;}}
+  enPassant=sv.ep;Object.assign(castling,sv.cast);halfMoveClock=sv.hm;
 }
 
-// 5. CÁLCULO DE TROCAS RÁPIDAS
-function quiesce(alpha, beta, max) {
-    const stand = evalBoard();
-    if (max) {
-        if (stand >= beta) return beta;
-        alpha = Math.max(alpha, stand);
-    } else {
-        if (stand <= alpha) return alpha;
-        beta = Math.min(beta, stand);
-    }
-    const side = max ? 'w' : 'b';
-    const caps = allMoves(side).filter(([fr, fc, tr, tc]) => board[tr][tc]);
-    for (const [fr, fc, tr, tc] of caps) {
-        const sv = makeE(fr, fc, tr, tc);
-        if (!sv) continue;
-        const sc = quiesce(alpha, beta, !max);
-        undoE(fr, fc, tr, tc, sv);
-        if (max) {
-            alpha = Math.max(alpha, sc);
-            if (alpha >= beta) return beta;
-        } else {
-            beta = Math.min(beta, sc);
-            if (beta <= alpha) return alpha;
-        }
-    }
-    return max ? alpha : beta;
+function quiesce(alpha,beta,max){
+  const stand=evalBoard();
+  if(max){if(stand>=beta)return beta;alpha=Math.max(alpha,stand);}
+  else{if(stand<=alpha)return alpha;beta=Math.min(beta,stand);}
+  const side=max?'w':'b';
+  const caps=allMoves(side).filter(([fr,fc,tr,tc])=>board[tr][tc]);
+  for(const[fr,fc,tr,tc]of caps){
+    const sv=makeE(fr,fc,tr,tc);if(!sv)continue;
+    const sc=quiesce(alpha,beta,!max);undoE(fr,fc,tr,tc,sv);
+    if(max){alpha=Math.max(alpha,sc);if(alpha>=beta)return beta;}
+    else{beta=Math.min(beta,sc);if(beta<=alpha)return alpha;}
+  }
+  return max?alpha:beta;
 }
 
-// 6. CÉREBRO DA IA (MINIMAX ALPHA-BETA)
-function minimax(depth, alpha, beta, max) {
-    if (depth === 0) return quiesce(alpha, beta, max);
-    const side = max ? 'w' : 'b';
-    const moves = allMoves(side);
-    if (!moves.length) return isInCheck(side) ? (max ? -99999 : 99999) : 0;
-
-    if (max) {
-        let best = -Infinity;
-        for (const [fr, fc, tr, tc] of moves) {
-            const sv = makeE(fr, fc, tr, tc);
-            if (!sv) continue;
-            best = Math.max(best, minimax(depth - 1, alpha, beta, false));
-            undoE(fr, fc, tr, tc, sv);
-            alpha = Math.max(alpha, best);
-            if (alpha >= beta) break;
-        }
-        return best;
-    } else {
-        let best = Infinity;
-        for (const [fr, fc, tr, tc] of moves) {
-            const sv = makeE(fr, fc, tr, tc);
-            if (!sv) continue;
-            best = Math.min(best, minimax(depth - 1, alpha, beta, true));
-            undoE(fr, fc, tr, tc, sv);
-            beta = Math.min(beta, best);
-            if (beta <= alpha) break;
-        }
-        return best;
-    }
+function minimax(depth,alpha,beta,max){
+  if(depth===0)return quiesce(alpha,beta,max);
+  const side=max?'w':'b';const moves=allMoves(side);
+  if(!moves.length)return isInCheck(side)?(max?-99999:99999):0;
+  if(max){let best=-Infinity;for(const[fr,fc,tr,tc]of moves){const sv=makeE(fr,fc,tr,tc);if(!sv)continue;best=Math.max(best,minimax(depth-1,alpha,beta,false));undoE(fr,fc,tr,tc,sv);alpha=Math.max(alpha,best);if(alpha>=beta)break;}return best;}
+  else{let best=Infinity;for(const[fr,fc,tr,tc]of moves){const sv=makeE(fr,fc,tr,tc);if(!sv)continue;best=Math.min(best,minimax(depth-1,alpha,beta,true));undoE(fr,fc,tr,tc,sv);beta=Math.min(beta,best);if(beta<=alpha)break;}return best;}
 }
 
-// 7. EXECUTOR DA JOGADA
-function doComputerMove() {
-  if (!gameActive) return;
-  
-  // Adicionamos esse setTimeout para o navegador "respirar" antes da IA travar tudo
-  setTimeout(() => {
-    const side = turn;
-    const moves = allMoves(side);
-    if (!moves.length) return;
-
-    let best = null;
-    let bestVal = side === 'w' ? -Infinity : Infinity;
-
-    // ... (resto do seu código de busca continua igual)
-    
-    for (const [fr, fc, tr, tc] of moves) {
-        const sv = makeE(fr, fc, tr, tc);
-        if (!sv) continue;
-        const val = minimax(engineDepth - 1, -Infinity, Infinity, side === 'b');
-        undoE(fr, fc, tr, tc, sv);
-        // ... (lógica de ruído e escolha do best)
-    }
-
-    if (best) doMove(...best);
-  }, 50); // Esse pequeno delay de 50ms permite que a interface atualize
-}
-  
-function updateEngine(){
-  const sc=evalBoard()/100,disp=sc>=0?'+'+sc.toFixed(1):sc.toFixed(1);
-  document.getElementById('engine-score').textContent=disp;
-  document.getElementById('engine-fill').style.width=Math.max(5,Math.min(95,50+sc*3))+'%';
-  document.getElementById('engine-hint').textContent='Turno: '+(turn==='w'?'Brancas':'Pretas')+' · '+sc.toFixed(2);
+function doComputerMove(){
+  if(!gameActive)return;
+  const side=turn,moves=allMoves(side);if(!moves.length)return;
+  let best=null,bestVal=side==='w'?-Infinity:Infinity;
+  for(const[fr,fc,tr,tc]of moves){
+    const sv=makeE(fr,fc,tr,tc);if(!sv)continue;
+    const val=minimax(engineDepth-1,-Infinity,Infinity,side==='b')+(Math.random()-.5)*engineNoise;
+    undoE(fr,fc,tr,tc,sv);
+    if(side==='w'?val>bestVal:val<bestVal){bestVal=val;best=[fr,fc,tr,tc];}
+  }
+  if(!best&&moves.length)best=moves[Math.floor(Math.random()*moves.length)];
+  if(best)doMove(...best);
 }
 
-// OPENING
+function updateEngineDisplay(){
+  const sc=evalBoard()/100;
+  const disp=sc>=0?'+'+sc.toFixed(1):sc.toFixed(1);
+  const scoreEl=document.getElementById('engine-score');
+  const fillEl=document.getElementById('engine-fill');
+  const hintEl=document.getElementById('engine-hint');
+  const barEl=document.getElementById('eval-bar-fill');
+  if(scoreEl)scoreEl.textContent=disp;
+  if(fillEl)fillEl.style.width=Math.max(5,Math.min(95,50+sc*3))+'%';
+  if(hintEl)hintEl.textContent='Turno: '+(turn==='w'?'Brancas':'Pretas');
+  if(barEl)barEl.style.height=Math.max(5,Math.min(95,50+sc*5))+'%';
+}
+
+// ═══════════════════════════════════════════════════
+// ENGINE — ANÁLISE DO SANDBOX (usa sandoBoard)
+// ═══════════════════════════════════════════════════
+function sandoEvalBoard(){
+  let s=0;
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=sandoBoard[r][c];if(!p)continue;
+    const v=PV2[p.toLowerCase()]||0;
+    s+=isW(p)?v:-v;
+  }
+  return s;
+}
+
+function sandoAllMoves(side){
+  const m=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(sideOf(sandoBoard[r][c])===side)for(const[tr,tc]of sandoGetLegal(r,c))m.push([r,c,tr,tc]);
+  return m;
+}
+
+async function analisarLinhas(){
+  const side=sandoTurn;
+  const moves=sandoAllMoves(side);
+  const box=document.getElementById('linhas-analise');
+  const scoreEl=document.getElementById('estudo-score');
+  if(!box)return;
+
+  const sc=sandoEvalBoard()/100;
+  if(scoreEl)scoreEl.textContent=(sc>=0?'+':'')+sc.toFixed(1);
+
+  if(!moves.length){box.innerHTML='<div style="color:#ff6b6b;font-size:12px;text-align:center">Sem lances disponíveis</div>';return;}
+  box.innerHTML='<div style="color:#7aff7a;font-size:11px;text-align:center;padding:6px">Calculando... 🤖</div>';
+  await new Promise(r=>setTimeout(r,20));
+
+  // Avalia usando o estado do sandbox temporariamente copiado para board
+  const savedBoard=board.map(r=>[...r]),savedTurn=turn,savedCast={...castling},savedEP=enPassant;
+  board=sandoBoard.map(r=>[...r]);turn=sandoTurn;castling={...sandoCastling};enPassant=sandoEP;
+
+  let avaliacoes=[];
+  const sandoMovesEval=[];
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(sideOf(board[r][c])===side)for(const[tr,tc]of getLegalMoves(r,c))sandoMovesEval.push([r,c,tr,tc]);
+
+  for(const[fr,fc,tr,tc]of sandoMovesEval){
+    const sv=makeE(fr,fc,tr,tc);if(!sv)continue;
+    const val=minimax(2,-Infinity,Infinity,side==='b');
+    undoE(fr,fc,tr,tc,sv);
+    avaliacoes.push({move:[fr,fc,tr,tc],score:val});
+    await new Promise(r=>setTimeout(r,1));
+  }
+
+  // Restaura o board do jogo real
+  board=savedBoard;turn=savedTurn;castling=savedCast;enPassant=savedEP;
+
+  avaliacoes.sort((a,b)=>side==='w'?b.score-a.score:a.score-b.score);
+  const F='abcdefgh',RK='87654321';
+  let html='';
+  for(let i=0;i<Math.min(3,avaliacoes.length);i++){
+    const m=avaliacoes[i].move;
+    const p=sandoBoard[m[0]][m[1]];
+    const notation=GLYPHS[p]+' '+F[m[1]]+RK[m[0]]+' → '+F[m[3]]+RK[m[2]];
+    const raw=(avaliacoes[i].score/100).toFixed(2);
+    const disp=(+raw>=0?'+':'')+raw;
+    html+=`<div style="background:#2c2c2c;font-size:11px;padding:6px;border-radius:4px;display:flex;gap:8px;margin-bottom:4px;border-left:3px solid #7aff7a"><span style="background:#fff;color:#000;padding:1px 4px;border-radius:3px;font-weight:900">${disp}</span><span style="color:#ddd">${notation}</span></div>`;
+  }
+  box.innerHTML=html||'<div style="color:#666;font-size:12px;text-align:center">Sem variantes</div>';
+}
+
+// ═══════════════════════════════════════════════════
+// SANDBOX — RESET E FEN
+// ═══════════════════════════════════════════════════
+function resetSandbox(){
+  initSandbox();
+  renderSandoCoords();
+  renderSandoBoard();
+  updateSandoMoveList();
+  analisarLinhas();
+  showToast('Sandbox reiniciado!');
+}
+
+function showFenLoadEstudo(){document.getElementById('fen-estudo-modal').classList.add('show');setTimeout(()=>document.getElementById('fen-estudo-input').focus(),100);}
+
+function loadFenEstudo(){
+  const v=document.getElementById('fen-estudo-input').value.trim();
+  if(!v)return;
+  try{
+    const pts=v.split(' '),rows=pts[0].split('/');
+    const nb=Array.from({length:8},()=>Array(8).fill(null));
+    for(let r=0;r<8;r++){let c=0;for(const ch of rows[r]){if('12345678'.includes(ch))c+=+ch;else{nb[r][c]=ch;c++;}}}
+    sandoBoard=nb;sandoTurn=pts[1]==='b'?'b':'w';
+    const cast=pts[2]||'-';sandoCastling={wK:cast.includes('K'),wQ:cast.includes('Q'),bK:cast.includes('k'),bQ:cast.includes('q')};
+    const ep=pts[3]||'-';sandoEP=ep!=='-'?['87654321'.indexOf(ep[1]),'abcdefgh'.indexOf(ep[0])]:null;
+    sandoSelected=null;sandoPossible=[];sandoLastMove=null;sandoMoveHistory=[];sandoSnapshots=[saveSandoSnap()];sandoNavIndex=-1;
+    renderSandoBoard();updateSandoMoveList();analisarLinhas();
+    document.getElementById('fen-estudo-modal').classList.remove('show');
+    showToast('Posição carregada no sandbox!');
+  }catch(e){showToast('FEN inválido!');}
+}
+
+function sandoBoardToFen(){
+  let f='';for(let r=0;r<8;r++){let e=0;for(let c=0;c<8;c++){const p=sandoBoard[r][c];if(p){if(e){f+=e;e=0;}f+=p;}else e++;}if(e)f+=e;if(r<7)f+='/';}
+  let cast='';if(sandoCastling.wK)cast+='K';if(sandoCastling.wQ)cast+='Q';if(sandoCastling.bK)cast+='k';if(sandoCastling.bQ)cast+='q';
+  f+=' '+(sandoTurn==='w'?'w':'b')+' '+(cast||'-')+' ';
+  if(sandoEP){const F='abcdefgh',RK='87654321';f+=F[sandoEP[1]]+RK[sandoEP[0]];}else f+='-';
+  f+=' 0 1';return f;
+}
+
+// ═══════════════════════════════════════════════════
+// ABERTURA, FEN, PGN
+// ═══════════════════════════════════════════════════
 function updateOpening(){
   const key=moveHistory.slice(0,6).map(m=>m.from+m.to).join(' ');
   let name='—';
@@ -737,7 +1093,6 @@ function updateOpening(){
   document.getElementById('opening-box').textContent=name;
 }
 
-// FEN/PGN
 function boardToFen(){
   let f='';for(let r=0;r<8;r++){let e=0;for(let c=0;c<8;c++){const p=board[r][c];if(p){if(e){f+=e;e=0;}f+=p;}else e++;}if(e)f+=e;if(r<7)f+='/';}
   let cast='';if(castling.wK)cast+='K';if(castling.wQ)cast+='Q';if(castling.bK)cast+='k';if(castling.bQ)cast+='q';
@@ -745,6 +1100,8 @@ function boardToFen(){
   if(enPassant){const F='abcdefgh',RK='87654321';f+=F[enPassant[1]]+RK[enPassant[0]];}else f+='-';
   f+=' '+halfMoveClock+' '+fullMoveNumber;return f;
 }
+
+function updateFenDisplay(){const el=document.getElementById('fen-display');if(el)el.textContent=boardToFen();}
 
 function loadFenString(fen){
   try{
@@ -768,7 +1125,6 @@ function buildPgn(hist,wi,bi,result){
   return pgn.trim()+' '+(result||'*');
 }
 
-function updateFenDisplay(){const el=document.getElementById('fen-display');if(el)el.textContent=boardToFen();}
 function showPgnModal(){const wi=+document.getElementById('sel-white').value,bi=+document.getElementById('sel-black').value;document.getElementById('pgn-text').textContent=buildPgn(moveHistory,wi,bi,'*');document.getElementById('pgn-modal').classList.add('show');}
 function showFenLoad(){document.getElementById('pgn-modal').classList.add('show');setTimeout(()=>document.getElementById('fen-input').focus(),100);}
 function loadFen(){const v=document.getElementById('fen-input').value;if(v.trim()){loadFenString(v);document.getElementById('pgn-modal').classList.remove('show');}}
@@ -779,7 +1135,9 @@ function exportAllPgn(){
   const a=document.createElement('a');a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(gameHistory.map(g=>g.pgn).join('\n\n\n'));a.download='torneio_dos_titas.pgn';a.click();showToast('PGNs exportados!');
 }
 
-// PROMOTION
+// ═══════════════════════════════════════════════════
+// PROMOÇÃO
+// ═══════════════════════════════════════════════════
 function askPromotion(side){
   return new Promise(resolve=>{
     const modal=document.getElementById('promo-modal'),choices=document.getElementById('promo-choices');choices.innerHTML='';
@@ -788,7 +1146,9 @@ function askPromotion(side){
   });
 }
 
-// STATUS
+// ═══════════════════════════════════════════════════
+// STATUS E UI
+// ═══════════════════════════════════════════════════
 function updateStatus(){
   const box=document.getElementById('status-box');
   const wi=+document.getElementById('sel-white').value,bi=+document.getElementById('sel-black').value;
@@ -815,12 +1175,16 @@ function updateMoveList(){
   el.innerHTML=html;el.scrollTop=el.scrollHeight;
 }
 
-function navTo(idx){
-  navIndex=Math.min(idx+1,boardSnapshots.length-1);
-  if(navIndex>=boardSnapshots.length-1){navIndex=-1;renderBoard();updateMoveList();}
-  else{renderBoard(boardSnapshots[navIndex]);highlightMove(idx);}
+function updateSandoMoveList(){
+  const el=document.getElementById('estudo-move-list');if(!el)return;
+  if(!sandoMoveHistory.length){el.innerHTML='<span style="color:#bbb;font-size:11px">Faça um lance para começar</span>';return;}
+  let html='';
+  for(let i=0;i<sandoMoveHistory.length;i+=2){
+    const n=Math.floor(i/2)+1;
+    html+=`<div class="move-pair"><span class="move-num">${n}.</span><span class="move-w">${sandoMoveHistory[i].notation}</span><span class="move-b">${sandoMoveHistory[i+1]?sandoMoveHistory[i+1].notation:''}</span></div>`;
+  }
+  el.innerHTML=html;el.scrollTop=el.scrollHeight;
 }
-function highlightMove(idx){document.querySelectorAll('.move-w,.move-b').forEach((el,i)=>el.classList.toggle('active-move',i===idx));}
 
 function updateCaptured(){
   const g=arr=>arr.map(p=>GLYPHS[p]).join('');
@@ -828,7 +1192,26 @@ function updateCaptured(){
   document.getElementById('captured-black').textContent='♚: '+g(capturedB);
 }
 
-// HISTORY
+// ═══════════════════════════════════════════════════
+// TEMAS
+// ═══════════════════════════════════════════════════
+function mudarTema(tema){
+  const r=document.documentElement;
+  const temas={
+    classico:['#e8e0c8','#f5f0e0','#1a1a1a','#f0d9b5','#b58863'],
+    noturno:['#161512','#262421','#ffffff','#7a7a7a','#333333'],
+    oceano:['#2b3135','#363e43','#ffffff','#dee3e6','#8ca2ad'],
+    esmeralda:['#212f21','#2e3d2e','#ffffff','#eeeed2','#769656'],
+  };
+  const v=temas[tema]||temas.classico;
+  r.style.setProperty('--bg',v[0]);r.style.setProperty('--card',v[1]);r.style.setProperty('--dark',v[2]);
+  r.style.setProperty('--light-sq',v[3]);r.style.setProperty('--dark-sq',v[4]);
+  renderBoard();renderSandoBoard();
+}
+
+// ═══════════════════════════════════════════════════
+// HISTÓRICO E TORNEIO
+// ═══════════════════════════════════════════════════
 function saveGameToHistory(result,wi,bi){
   const wp=PLAYERS[wi],bp=PLAYERS[bi],pgn=buildPgn(moveHistory,wi,bi,result);
   gameHistory.push({white:wp,black:bp,result,pgn,moves:moveHistory.length,date:new Date().toLocaleString('pt-BR'),wi,bi});
@@ -854,15 +1237,13 @@ function renderHistory(){
 
 function showHistoryPgn(idx){document.getElementById('pgn-text').textContent=gameHistory[idx].pgn;document.getElementById('pgn-modal').classList.add('show');}
 
-// GAME CONTROL
 function startGame(){
+  toggleEngineConfig();
   const wi=+document.getElementById('sel-white').value,bi=+document.getElementById('sel-black').value;
   if(wi===bi){showToast('Escolha jogadores diferentes!');return;}
   initBoard();gameActive=true;clearInterval(clockInterval);
   const t=+document.getElementById('sel-time').value;clockEnabled=t>0;clockW=t;clockB=t;updateClockDisplay();
   engineEnabled=(wi===4||bi===4);
-  document.getElementById('engine-card').style.display=engineEnabled?'block':'none';
-  document.getElementById('engine-config').style.display=engineEnabled?'block':'none';
   document.getElementById('resign-btn').style.display='block';
   document.getElementById('opening-box').textContent='—';
   renderBoard();updateMoveList();updateCaptured();updateStatus();
@@ -879,7 +1260,6 @@ function resignGame(){
   playSound('end');saveGameToHistory(result,wi,bi);renderBoard();
 }
 
-// TOURNAMENT
 function renderMatches(){
   const c=document.getElementById('matches-container');c.innerHTML='';
   tourneyMatches.forEach((m,idx)=>{
@@ -905,54 +1285,19 @@ function renderStandings(){
 }
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
-function mudarTema(tema) {
-  const root = document.documentElement;
-  localStorage.setItem('temaFavorito', tema);
 
-  if (tema === 'classico') {
-    // Madeira Tradicional
-    root.style.setProperty('--bg', '#e8e0c8');
-    root.style.setProperty('--card', '#f5f0e0');
-    root.style.setProperty('--light-sq', '#f0d9b5');
-    root.style.setProperty('--dark-sq', '#b58863');
-    root.style.setProperty('--gold', '#c9a84c');
-  } 
-  else if (tema === 'noturno') {
-    // Dark Mode Profissional (Cores do Lichess)
-    root.style.setProperty('--bg', '#161512');
-    root.style.setProperty('--card', '#262421');
-    root.style.setProperty('--light-sq', '#dee3e6');
-    root.style.setProperty('--dark-sq', '#8ca2ad');
-    root.style.setProperty('--gold', '#ffff5a');
-  }
-  else if (tema === 'oceano') {
-    // Azul Suave (Estilo Chess.com)
-    root.style.setProperty('--bg', '#2b3135');
-    root.style.setProperty('--card', '#31393e'); 
-    root.style.setProperty('--light-sq', '#dee3e6');
-    root.style.setProperty('--dark-sq', '#8ca2ad');
-    root.style.setProperty('--gold', '#ffff5a'); 
-  }
-  else if (tema === 'esmeralda') {
-    // Verde Moderno
-    root.style.setProperty('--bg', '#2f3531');
-    root.style.setProperty('--card', '#3a423d'); 
-    root.style.setProperty('--light-sq', '#eeeed2');
-    root.style.setProperty('--dark-sq', '#769656');
-    root.style.setProperty('--gold', '#fdfd71');
-  }
-}
-  
-// Verifica se tem tema salvo e aplica ao iniciar
-const temaSalvo = localStorage.getItem('temaFavorito');
-if (temaSalvo) {
-    mudarTema(temaSalvo);
-    const selectTema = document.getElementById('sel-theme');
-    if(selectTema) selectTema.value = temaSalvo;
-}
-  
+// ═══════════════════════════════════════════════════
 // INIT
-initBoard();renderCoords();renderBoard();renderMatches();renderStandings();
+// ═══════════════════════════════════════════════════
+initBoard();
+initSandbox();
+renderCoords();
+renderSandoCoords();
+renderBoard();
+renderSandoBoard();
+renderMatches();
+renderStandings();
+toggleEngineConfig();
 </script>
 </body>
 </html>
