@@ -367,12 +367,7 @@ const PLAYERS = [
   {name:'João Boi', rating:2468, emoji:'🐂'},
   {name:'Computador', rating:1500, emoji:'🤖'},
 ];
-  
-const SFX = {
-  move: new Audio('sounds/move.mp3'),
-  capture: new Audio('sounds/capture.mp3')
-};
-  
+
 const tourneyMatches = [];
 for(let i=0;i<4;i++) for(let j=i+1;j<4;j++) tourneyMatches.push({p1:i,p2:j,result:null});
 
@@ -632,18 +627,6 @@ function hasLegalMoves(side){
 async function doMove(fr,fc,tr,tc){
   const p=board[fr][fc], cap=board[tr][tc], side=sideOf(p);
   let special='', isCapture=!!cap;
-
-  // ... (resto do código do movimento)
-
-  // 👇 COLOCA O SOM AQUI NO FINAL
-  if(isCapture){
-    SFX.capture.currentTime = 0;
-    SFX.capture.play();
-  }else{
-    SFX.move.currentTime = 0;
-    SFX.move.play();
-  }
-}
 
   // en passant
   let epCap=null;
