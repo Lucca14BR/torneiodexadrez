@@ -50,7 +50,16 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
 .sq.last-move{background:var(--last-move)!important}
 .sq.in-check{background:rgba(220,40,40,.75)!important}
 .chess-side{display:flex;flex-direction:column;gap:10px;min-width:265px;max-width:310px}
-.side-card{background:var(--card);border-radius:10px;border:1.5px solid var(--border);padding:11px 13px}
+.side-card {
+  background: rgba(255, 255, 255, 0.4); 
+  backdrop-filter: blur(12px); 
+  -webkit-backdrop-filter: blur(12px); 
+  border-radius: 12px; 
+  border: 1px solid rgba(255, 255, 255, 0.3); 
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05); 
+  padding: 11px 13px;
+  margin-bottom: 10px;
+}
 .side-title{font-family:'Bebas Neue',cursive;font-size:15px;letter-spacing:1px;border-bottom:2px solid var(--gold);padding-bottom:3px;margin-bottom:8px}
 .sel-label{font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;display:block}
 .player-sel{border:2px solid var(--dark);border-radius:6px;padding:5px 8px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;background:var(--bg);color:var(--dark);cursor:pointer;width:100%;margin-bottom:7px}
