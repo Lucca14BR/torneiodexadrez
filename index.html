@@ -237,22 +237,16 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
   </div>
 </div>
 
-  <div class="side-card">
-        <div class="side-title">Capturadas</div>
-        <div id="captured-white" style="font-size:15px;min-height:20px;margin-bottom:2px">♔: </div>
-        <div id="captured-black" style="font-size:15px;min-height:20px">♚: </div>
-      </div> <div class="side-card">
-        <div class="side-title">Visual</div>
-        <span class="sel-label">Tema do Tabuleiro</span>
-        <select class="player-sel" id="sel-theme" onchange="mudarTema(this.value)">
-          <option value="classico">Clássico (Madeira)</option>
-          <option value="noturno">Modo Noturno 🌙</option>
-          <option value="tricolor">Guerreiro Tricolor 🇭🇺</option>
-          <option value="capivara">Capivara Relax 🦦</option>
-        </select>
-      </div>
-
-    </div> </div> </div> ```
+ <div class="side-card">
+  <div class="side-title">Visual</div>
+  <span class="sel-label">Tema do Tabuleiro</span>
+  <select class="player-sel" id="sel-theme" onchange="mudarTema(this.value)">
+    <option value="classico">Clássico (Madeira)</option>
+    <option value="noturno">Noturno (Lichess) 🌙</option>
+    <option value="oceano">Oceano (Azul) 🌊</option>
+    <option value="esmeralda">Esmeralda (Verde) 🌳</option>
+  </select>
+</div>
   
 <!-- HISTÓRICO -->
 <div id="tab-historico" class="section">
@@ -911,12 +905,12 @@ function renderStandings(){
 }
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
-
 function mudarTema(tema) {
   const root = document.documentElement;
   localStorage.setItem('temaFavorito', tema);
 
   if (tema === 'classico') {
+    // Madeira Tradicional
     root.style.setProperty('--bg', '#e8e0c8');
     root.style.setProperty('--card', '#f5f0e0');
     root.style.setProperty('--light-sq', '#f0d9b5');
@@ -924,25 +918,28 @@ function mudarTema(tema) {
     root.style.setProperty('--gold', '#c9a84c');
   } 
   else if (tema === 'noturno') {
-    root.style.setProperty('--bg', '#121212');
-    root.style.setProperty('--card', '#1e1e1e');
-    root.style.setProperty('--light-sq', '#7a7a7a');
-    root.style.setProperty('--dark-sq', '#333333');
-    root.style.setProperty('--gold', '#7aff7a');
+    // Dark Mode Profissional (Cores do Lichess)
+    root.style.setProperty('--bg', '#161512');
+    root.style.setProperty('--card', '#262421');
+    root.style.setProperty('--light-sq', '#dee3e6');
+    root.style.setProperty('--dark-sq', '#8ca2ad');
+    root.style.setProperty('--gold', '#ffff5a');
   }
-  else if (tema === 'tricolor') {
-    root.style.setProperty('--bg', '#155c3d');
-    root.style.setProperty('--card', '#f4f4f4'); 
-    root.style.setProperty('--light-sq', '#ffffff');
-    root.style.setProperty('--dark-sq', '#8B1A2B');
-    root.style.setProperty('--gold', '#8B1A2B'); 
+  else if (tema === 'oceano') {
+    // Azul Suave (Estilo Chess.com)
+    root.style.setProperty('--bg', '#2b3135');
+    root.style.setProperty('--card', '#31393e'); 
+    root.style.setProperty('--light-sq', '#dee3e6');
+    root.style.setProperty('--dark-sq', '#8ca2ad');
+    root.style.setProperty('--gold', '#ffff5a'); 
   }
-  else if (tema === 'capivara') {
-    root.style.setProperty('--bg', '#a3d9a5');
-    root.style.setProperty('--card', '#e6d5b8'); 
-    root.style.setProperty('--light-sq', '#d4b886');
-    root.style.setProperty('--dark-sq', '#8b5a2b');
-    root.style.setProperty('--gold', '#5c3a21');
+  else if (tema === 'esmeralda') {
+    // Verde Moderno
+    root.style.setProperty('--bg', '#2f3531');
+    root.style.setProperty('--card', '#3a423d'); 
+    root.style.setProperty('--light-sq', '#eeeed2');
+    root.style.setProperty('--dark-sq', '#769656');
+    root.style.setProperty('--gold', '#fdfd71');
   }
 }
   
