@@ -757,6 +757,50 @@ function exportAllPgn(){
   const a=document.createElement('a');a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(gameHistory.map(g=>g.pgn).join('\n\n\n'));a.download='torneio_dos_titas.pgn';a.click();showToast('PGNs exportados!');
 }
 
+<div class="side-card">
+  <div class="side-title">Visual</div>
+  <span class="sel-label">Tema do Tabuleiro</span>
+  <select class="player-sel" id="sel-theme" onchange="mudarTema(this.value)">
+    <option value="classico">Clássico (Madeira)</option>
+    <option value="noturno">Modo Noturno 🌙</option>
+    <option value="tricolor">Guerreiro Tricolor 🇭🇺</option>
+    <option value="capivara">Capivara Relax 🦦</option>
+  </select>
+</div>
+
+  function mudarTema(tema) {
+  const root = document.documentElement; // Isso pega o seu :root do CSS
+
+  if (tema === 'classico') {
+    root.style.setProperty('--bg', '#e8e0c8');
+    root.style.setProperty('--card', '#f5f0e0');
+    root.style.setProperty('--light-sq', '#f0d9b5');
+    root.style.setProperty('--dark-sq', '#b58863');
+    root.style.setProperty('--gold', '#c9a84c');
+  } 
+  else if (tema === 'noturno') {
+    root.style.setProperty('--bg', '#121212');
+    root.style.setProperty('--card', '#1e1e1e');
+    root.style.setProperty('--light-sq', '#7a7a7a');
+    root.style.setProperty('--dark-sq', '#333333');
+    root.style.setProperty('--gold', '#7aff7a'); // Um verde neon pra destacar
+  }
+  else if (tema === 'tricolor') {
+    root.style.setProperty('--bg', '#155c3d'); // Verde escuro
+    root.style.setProperty('--card', '#f4f4f4'); // Branco
+    root.style.setProperty('--light-sq', '#ffffff'); // Casas claras brancas
+    root.style.setProperty('--dark-sq', '#8B1A2B'); // Casas escuras grená
+    root.style.setProperty('--gold', '#8B1A2B'); 
+  }
+  else if (tema === 'capivara') {
+    root.style.setProperty('--bg', '#a3d9a5'); // Verde natureza
+    root.style.setProperty('--card', '#e6d5b8'); // Areia
+    root.style.setProperty('--light-sq', '#d4b886'); // Marrom claro
+    root.style.setProperty('--dark-sq', '#8b5a2b'); // Marrom escuro da pelagem
+    root.style.setProperty('--gold', '#5c3a21');
+  }
+}
+  
 // PROMOTION
 function askPromotion(side){
   return new Promise(resolve=>{
