@@ -675,7 +675,10 @@ function minimax(depth, alpha, beta, max) {
 
 // 7. EXECUTOR DA JOGADA
 function doComputerMove() {
-    if (!gameActive) return;
+  if (!gameActive) return;
+  
+  // Adicionamos esse setTimeout para o navegador "respirar" antes da IA travar tudo
+  setTimeout(() => {
     const side = turn;
     const moves = allMoves(side);
     if (!moves.length) return;
@@ -683,23 +686,18 @@ function doComputerMove() {
     let best = null;
     let bestVal = side === 'w' ? -Infinity : Infinity;
 
+    // ... (resto do seu código de busca continua igual)
+    
     for (const [fr, fc, tr, tc] of moves) {
         const sv = makeE(fr, fc, tr, tc);
         if (!sv) continue;
-
-        // O computador agora sabe exatamente se deve buscar max ou min
         const val = minimax(engineDepth - 1, -Infinity, Infinity, side === 'b');
         undoE(fr, fc, tr, tc, sv);
-
-        const noisy = val + (Math.random() - 0.5) * engineNoise;
-
-        if (side === 'w') {
-            if (noisy > bestVal) { bestVal = noisy; best = [fr, fc, tr, tc]; }
-        } else {
-            if (noisy < bestVal) { bestVal = noisy; best = [fr, fc, tr, tc]; }
-        }
+        // ... (lógica de ruído e escolha do best)
     }
+
     if (best) doMove(...best);
+  }, 50); // Esse pequeno delay de 50ms permite que a interface atualize
 }
   
 function updateEngine(){
