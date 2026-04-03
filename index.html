@@ -778,40 +778,6 @@ function exportAllPgn(){
     <option value="capivara">Capivara Relax 🦦</option>
   </select>
 </div>
-
-function mudarTema(tema) {
-  const root = document.documentElement;
-  localStorage.setItem('temaFavorito', tema); // Salva para não perder quando fechar
-
-  if (tema === 'classico') {
-    root.style.setProperty('--bg', '#e8e0c8');
-    root.style.setProperty('--card', '#f5f0e0');
-    root.style.setProperty('--light-sq', '#f0d9b5');
-    root.style.setProperty('--dark-sq', '#b58863');
-    root.style.setProperty('--gold', '#c9a84c');
-  } 
-  else if (tema === 'noturno') {
-    root.style.setProperty('--bg', '#121212');
-    root.style.setProperty('--card', '#1e1e1e');
-    root.style.setProperty('--light-sq', '#7a7a7a');
-    root.style.setProperty('--dark-sq', '#333333');
-    root.style.setProperty('--gold', '#7aff7a');
-  }
-  else if (tema === 'tricolor') {
-    root.style.setProperty('--bg', '#155c3d'); // Verde Fluminense
-    root.style.setProperty('--card', '#f4f4f4'); 
-    root.style.setProperty('--light-sq', '#ffffff'); // Branco
-    root.style.setProperty('--dark-sq', '#8B1A2B'); // Grená
-    root.style.setProperty('--gold', '#8B1A2B'); 
-  }
-  else if (tema === 'capivara') {
-    root.style.setProperty('--bg', '#a3d9a5'); // Grama da capivara
-    root.style.setProperty('--card', '#e6d5b8'); 
-    root.style.setProperty('--light-sq', '#d4b886'); // Pelagem clara
-    root.style.setProperty('--dark-sq', '#8b5a2b'); // Pelagem escura
-    root.style.setProperty('--gold', '#5c3a21');
-  }
-}
   
 // PROMOTION
 function askPromotion(side){
@@ -940,6 +906,40 @@ function renderStandings(){
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
 
+function mudarTema(tema) {
+  const root = document.documentElement;
+  localStorage.setItem('temaFavorito', tema);
+
+  if (tema === 'classico') {
+    root.style.setProperty('--bg', '#e8e0c8');
+    root.style.setProperty('--card', '#f5f0e0');
+    root.style.setProperty('--light-sq', '#f0d9b5');
+    root.style.setProperty('--dark-sq', '#b58863');
+    root.style.setProperty('--gold', '#c9a84c');
+  } 
+  else if (tema === 'noturno') {
+    root.style.setProperty('--bg', '#121212');
+    root.style.setProperty('--card', '#1e1e1e');
+    root.style.setProperty('--light-sq', '#7a7a7a');
+    root.style.setProperty('--dark-sq', '#333333');
+    root.style.setProperty('--gold', '#7aff7a');
+  }
+  else if (tema === 'tricolor') {
+    root.style.setProperty('--bg', '#155c3d');
+    root.style.setProperty('--card', '#f4f4f4'); 
+    root.style.setProperty('--light-sq', '#ffffff');
+    root.style.setProperty('--dark-sq', '#8B1A2B');
+    root.style.setProperty('--gold', '#8B1A2B'); 
+  }
+  else if (tema === 'capivara') {
+    root.style.setProperty('--bg', '#a3d9a5');
+    root.style.setProperty('--card', '#e6d5b8'); 
+    root.style.setProperty('--light-sq', '#d4b886');
+    root.style.setProperty('--dark-sq', '#8b5a2b');
+    root.style.setProperty('--gold', '#5c3a21');
+  }
+}
+  
 // Verifica se tem tema salvo e aplica ao iniciar
 const temaSalvo = localStorage.getItem('temaFavorito');
 if (temaSalvo) {
