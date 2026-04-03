@@ -296,7 +296,12 @@ let board,turn,selected,possibleMoves,gameActive,lastMove,castling,enPassant,mov
 let clockW,clockB,clockInterval,clockEnabled,engineEnabled=false,boardFlipped=false;
 let engineDepth=3,engineNoise=30,navIndex=-1,boardSnapshots=[];
 
-const DIFF={1:{depth:1,noise:200,label:'Profundidade 1 · Iniciante'},2:{depth:3,noise:30,label:'Profundidade 3 · Estrategista'},3:{depth:4,noise:5,label:'Profundidade 4 · Forte'},4:{depth:5,noise:0,label:'Profundidade 5 · Titã 🔥'}};
+const DIFF={
+  1:{depth:1,noise:200,label:'Profundidade 1 · Iniciante'},
+  2:{depth:2,noise:30,label:'Profundidade 2 · Estrategista'},
+  3:{depth:3,noise:5,label:'Profundidade 3 · Forte'},
+  4:{depth:4,noise:0,label:'Profundidade 4 · Titã 🔥'}
+};
 
 function setDiff(d,btn){const c=DIFF[d];engineDepth=c.depth;engineNoise=c.noise;document.getElementById('diff-desc').textContent=c.label;document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
 
