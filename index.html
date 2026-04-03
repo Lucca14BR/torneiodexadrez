@@ -237,6 +237,23 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
   </div>
 </div>
 
+  <div class="side-card">
+        <div class="side-title">Capturadas</div>
+        <div id="captured-white" style="font-size:15px;min-height:20px;margin-bottom:2px">♔: </div>
+        <div id="captured-black" style="font-size:15px;min-height:20px">♚: </div>
+      </div> <div class="side-card">
+        <div class="side-title">Visual</div>
+        <span class="sel-label">Tema do Tabuleiro</span>
+        <select class="player-sel" id="sel-theme" onchange="mudarTema(this.value)">
+          <option value="classico">Clássico (Madeira)</option>
+          <option value="noturno">Modo Noturno 🌙</option>
+          <option value="tricolor">Guerreiro Tricolor 🇭🇺</option>
+          <option value="capivara">Capivara Relax 🦦</option>
+        </select>
+      </div>
+
+    </div> </div> </div> ```
+  
 <!-- HISTÓRICO -->
 <div id="tab-historico" class="section">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
@@ -768,17 +785,6 @@ function exportAllPgn(){
   const a=document.createElement('a');a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(gameHistory.map(g=>g.pgn).join('\n\n\n'));a.download='torneio_dos_titas.pgn';a.click();showToast('PGNs exportados!');
 }
 
-<div class="side-card">
-  <div class="side-title">Visual</div>
-  <span class="sel-label">Tema do Tabuleiro</span>
-  <select class="player-sel" id="sel-theme" onchange="mudarTema(this.value)">
-    <option value="classico">Clássico (Madeira)</option>
-    <option value="noturno">Modo Noturno 🌙</option>
-    <option value="tricolor">Guerreiro Tricolor 🇭🇺</option>
-    <option value="capivara">Capivara Relax 🦦</option>
-  </select>
-</div>
-  
 // PROMOTION
 function askPromotion(side){
   return new Promise(resolve=>{
