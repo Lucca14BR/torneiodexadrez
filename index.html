@@ -520,82 +520,84 @@ function getPST(p,r,c){
   return 0;
 }
 
-function evalBoard(){
-  let s=0;const wP=Array(8).fill(0),bP=Array(8).fill(0);
-  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-    const p=board[r][c];if(!p)continue;
-    const v=(PV2[p.toLowerCase()]||0)+getPST(p,r,c);
-    s+=isW(p)?v:-v;
-    if(p==='P')wP[c]++;if(p==='p')bP[c]++;
-  }
-  for(let c=0;c<8;c++){
-    if(wP[c]>1)s-=20*(wP[c]-1);if(wP[c]===1&&(c===0||wP[c-1]===0)&&(c===7||wP[c+1]===0))s-=15;
-    if(bP[c]>1)s+=20*(bP[c]-1);if(bP[c]===1&&(c===0||bP[c-1]===0)&&(c===7||bP[c+1]===0))s+=15;
-  }
-  return s;
-}
-
-function allMoves(side) {
-  const m = [];
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      if (sideOf(board[r][c]) === side) {
-        for (const [tr, tc] of getLegalMoves(r, c)) {
-          m.push([r, c, tr, tc]);
-        }
-      }
+// 1. AVALIAÇÃO DO TABULEIRO
+function evalBoard() {
+    let s = 0; const wP = Array(8).fill(0), bP = Array(8).fill(0);
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+        const p = board[r][c]; if (!p) continue;
+        const v = (PV2[p.toLowerCase()] || 0) + getPST(p, r, c);
+        s += isW(p) ? v : -v;
+        if (p === 'P') wP[c]++; if (p === 'p') bP[c]++;
     }
-  }
-  // Adicionamos uma verificação (if p) antes de usar o toLowerCase
-  return m.sort((a, b) => {
-    const pieceA = board[a[2]][a[3]];
-    const pieceB = board[b[2]][b[3]];
-    const valA = pieceA ? (PV2[pieceA.toLowerCase()] || 0) : 0;
-    const valB = pieceB ? (PV2[pieceB.toLowerCase()] || 0) : 0;
-    return valB - valA;
-  });
+    for (let c = 0; c < 8; c++) {
+        if (wP[c] > 1) s -= 20 * (wP[c] - 1); if (wP[c] === 1 && (c === 0 || wP[c - 1] === 0) && (c === 7 || wP[c + 1] === 0)) s -= 15;
+        if (bP[c] > 1) s += 20 * (bP[c] - 1); if (bP[c] === 1 && (c === 0 || bP[c - 1] === 0) && (c === 7 || bP[c + 1] === 0)) s += 15;
+    }
+    return s;
 }
 
+// 2. GERADOR DE LANCES ORDENADOS
+function allMoves(side) {
+    const m = [];
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (sideOf(board[r][c]) === side) {
+                for (const [tr, tc] of getLegalMoves(r, c)) m.push([r, c, tr, tc]);
+            }
+        }
+    }
+    return m.sort((a, b) => {
+        const pA = board[a[2]][a[3]];
+        const pB = board[b[2]][b[3]];
+        const vA = pA ? (PV2[pA.toLowerCase()] || 0) : 0;
+        const vB = pB ? (PV2[pB.toLowerCase()] || 0) : 0;
+        return vB - vA;
+    });
+}
+
+// 3. SIMULADOR DE LANCES (COM TRAVA DE SEGURANÇA E ROQUE)
 function makeE(fr, fc, tr, tc) {
     const p = board[fr][fc];
-    if (!p) return null;
+    if (!p) return null; // Trava contra o erro do toLowerCase!
 
     const sv = {
         p: p,
         cap: board[tr][tc],
         ep: enPassant,
-        cast: { ...castling }, // Salva o estado atual
+        cast: { ...castling },
         hm: halfMoveClock
     };
 
     board[tr][tc] = p;
     board[fr][fc] = null;
 
-    // --- ADICIONE ESTA PARTE PARA O ROQUE ---
+    if (p === 'P' && tr === 0) board[tr][tc] = 'Q';
+    if (p === 'p' && tr === 7) board[tr][tc] = 'q';
+
     if (p.toLowerCase() === 'k') {
-        // Se mover o Rei, perde direito a qualquer roque
         if (p === 'K') { castling.wK = false; castling.wQ = false; }
         else { castling.bK = false; castling.bQ = false; }
-
+        
         if (Math.abs(fc - tc) === 2) {
             if (tc === 6) { board[fr][5] = board[fr][7]; board[fr][7] = null; }
             else if (tc === 2) { board[fr][3] = board[fr][0]; board[fr][0] = null; }
         }
     }
-    // Se mover a torre, perde direito ao roque daquele lado
+    
     if (p === 'R') { if (fc === 7) castling.wK = false; if (fc === 0) castling.wQ = false; }
     if (p === 'r') { if (fc === 7) castling.bK = false; if (fc === 0) castling.bQ = false; }
-    // ---------------------------------------
 
+    enPassant = (p.toLowerCase() === 'p' && Math.abs(fr - tr) === 2) ? [(fr + tr) / 2, fc] : null;
+    halfMoveClock = (p.toLowerCase() === 'p' || sv.cap) ? 0 : halfMoveClock + 1;
     return sv;
 }
-  
+
+// 4. DESFAZER SIMULAÇÃO (LIMPANDO FANTASMAS)
 function undoE(fr, fc, tr, tc, sv) {
     if (!sv) return;
     board[fr][fc] = sv.p;
     board[tr][tc] = sv.cap;
     
-    // Se desfez um Roque, volta a torre também!
     if (sv.p.toLowerCase() === 'k' && Math.abs(fc - tc) === 2) {
         if (tc === 6) { board[fr][7] = board[fr][5]; board[fr][5] = null; }
         else if (tc === 2) { board[fr][0] = board[fr][3]; board[fr][3] = null; }
@@ -605,8 +607,8 @@ function undoE(fr, fc, tr, tc, sv) {
     Object.assign(castling, sv.cast);
     halfMoveClock = sv.hm;
 }
-  
-// --- FUNÇÃO DE BUSCA RECURSIVA (O CORAÇÃO DA IA) ---
+
+// 5. CÁLCULO DE TROCAS RÁPIDAS
 function quiesce(alpha, beta, max) {
     const stand = evalBoard();
     if (max) {
@@ -634,6 +636,7 @@ function quiesce(alpha, beta, max) {
     return max ? alpha : beta;
 }
 
+// 6. CÉREBRO DA IA (MINIMAX ALPHA-BETA)
 function minimax(depth, alpha, beta, max) {
     if (depth === 0) return quiesce(alpha, beta, max);
     const side = max ? 'w' : 'b';
@@ -665,7 +668,7 @@ function minimax(depth, alpha, beta, max) {
     }
 }
 
-// --- FUNÇÃO QUE EXECUTA A JOGADA DO COMPUTADOR ---
+// 7. EXECUTOR DA JOGADA
 function doComputerMove() {
     if (!gameActive) return;
     const side = turn;
@@ -679,7 +682,7 @@ function doComputerMove() {
         const sv = makeE(fr, fc, tr, tc);
         if (!sv) continue;
 
-        // Se o computador é Pretas (b), o minimax começa com max=true (Brancas)
+        // O computador agora sabe exatamente se deve buscar max ou min
         const val = minimax(engineDepth - 1, -Infinity, Infinity, side === 'b');
         undoE(fr, fc, tr, tc, sv);
 
@@ -693,7 +696,7 @@ function doComputerMove() {
     }
     if (best) doMove(...best);
 }
-
+  
 function updateEngine(){
   const sc=evalBoard()/100,disp=sc>=0?'+'+sc.toFixed(1):sc.toFixed(1);
   document.getElementById('engine-score').textContent=disp;
