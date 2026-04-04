@@ -277,6 +277,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
       <div id="estudo-coords-top" style="display:flex;padding-left:20px;margin-bottom:1px"></div>
       <div style="display:flex;align-items:stretch;gap:6px">
         <div id="estudo-coords-left" style="display:flex;flex-direction:column;width:20px"></div>
+        <div class="eval-bar-vertical"><div class="eval-bar-fill" id="estudo-eval-bar-fill" style="height:50%"></div></div>
         <div id="estudo-chess-board" style="display:grid;grid-template-columns:repeat(8,60px);grid-template-rows:repeat(8,60px);border:3px solid var(--dark);border-radius:4px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.25)"></div>
         <div id="estudo-coords-right" style="display:flex;flex-direction:column;width:20px"></div>
       </div>
@@ -404,9 +405,9 @@ const PST_KE=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,20,20
 const OPENINGS={'e2e4':'Peão do Rei','d2d4':'Peão da Dama','c2c4':'Inglesa','g1f3':'Réti','e2e4 e7e5':'Defesa ao Peão do Rei','e2e4 c7c5':'Siciliana','e2e4 e7e6':'Francesa','e2e4 c7c6':'Caro-Kann','e2e4 d7d5':'Escandinava','e2e4 g8f6':'Alekhine','d2d4 d7d5':'Peão da Dama Declinado','d2d4 g8f6':'Indiana','d2d4 d7d5 c2c4':'Gambit da Dama','e2e4 e7e5 g1f3 b8c6 f1b5':'Ruy Lopez','e2e4 e7e5 g1f3 b8c6 f1c4':'Italiana','e2e4 c7c5 g1f3 d7d6':'Siciliana Najdorf','d2d4 d7d5 c2c4 e7e6':'Gambit da Dama Declinado','d2d4 d7d5 c2c4 d5c4':'Gambit da Dama Aceito'};
 const DIFF={
   1:{depth:1,noise:200,label:'Profundidade 1 · Iniciante'},
-  2:{depth:3,noise:30,label:'Profundidade 3 · Estrategista'},
-  3:{depth:4,noise:5,label:'Profundidade 4 · Forte'},
-  4:{depth:5,noise:0,label:'Profundidade 5 · Titã Supremo 🔥'} // Agora com profundidade 5!
+  2:{depth:2,noise:30,label:'Profundidade 2 · Estrategista'},
+  3:{depth:3,noise:5,label:'Profundidade 3 · Forte'},
+  4:{depth:4,noise:0,label:'Profundidade 4 · Titã Supremo 🔥'}
 };
 // ═══════════════════════════════════════════════════
 // ESTADO DO JOGO PRINCIPAL
@@ -555,15 +556,18 @@ function renderBoard(snap){
       if(!snap&&possibleMoves.some(m=>m[0]===r&&m[1]===c)){sq.classList.add('possible');if(b[r][c])sq.classList.add('has-piece');}
       if(lm&&((lm.fr===r&&lm.fc===c)||(lm.tr===r&&lm.tc===c)))sq.classList.add('last-move');
       const p=b[r][c];
-      // --- NO renderBoard (linhas 1202-1236), SUBSTITUA O BLOCO if(p){...} (linha 1232) POR ESTE ---
       if(p){
         sq.textContent=GLYPHS[p];
         if(isW(p))sq.classList.add('w-piece');else sq.classList.add('b-piece');
         if(!snap&&((p==='K'&&isInCheck('w'))||(p==='k'&&isInCheck('b'))))sq.classList.add('in-check');
       }
+      sq.onclick=()=>handleClick(r,c);
       el.appendChild(sq);
     }
   }
+  const fenEl=document.getElementById('fen-display');
+  if(fenEl)fenEl.textContent=boardToFen();
+  updateEngineDisplay();
 }
 
 // ═══════════════════════════════════════════════════
@@ -598,15 +602,21 @@ function renderSandoBoard(snap){
       if(!snap&&sandoPossible.some(m=>m[0]===r&&m[1]===c)){sq.classList.add('possible');if(b[r][c])sq.classList.add('has-piece');}
       if(lm&&((lm.fr===r&&lm.fc===c)||(lm.tr===r&&lm.tc===c)))sq.classList.add('last-move');
       const p=b[r][c];
-     // --- NO renderSandoBoard (linhas 248-268), SUBSTITUA O BLOCO if(p){...} (linha 266) POR ESTE ---
       if(p){
         sq.textContent=GLYPHS[p];
         if(isW(p))sq.classList.add('w-piece');else sq.classList.add('b-piece');
         if(!snap&&((p==='K'&&sandoIsInCheck('w'))||(p==='k'&&sandoIsInCheck('b'))))sq.classList.add('in-check');
       }
+      sq.onclick=()=>handleSandoClick(r,c);
       el.appendChild(sq);
     }
   }
+  const fenEl=document.getElementById('estudo-fen-display');
+  if(fenEl)fenEl.textContent=sandoBoardToFen();
+  // Atualiza a barrinha de avaliação do Sandbox
+  const sandoEval=sandoEvalBoard();
+  const barEl=document.getElementById('estudo-eval-bar-fill');
+  if(barEl)barEl.style.height=Math.max(5,Math.min(95,50+sandoEval/20))+'%';
 }
 
 // ═══════════════════════════════════════════════════
@@ -818,7 +828,7 @@ async function doMove(fr,fc,tr,tc){
   const wi=+document.getElementById('sel-white').value,bi=+document.getElementById('sel-black').value;
   if(gameActive&&((turn==='w'&&wi===4)||(turn==='b'&&bi===4))){
     document.getElementById('thinking-indicator')?document.getElementById('thinking-indicator').style.display='inline':'';
-    setTimeout(()=>{doComputerMove();},50);
+    setTimeout(async()=>{await doComputerMove();},200);
   }
 }
 
@@ -941,30 +951,36 @@ function evalBoard(){
   return s;
 }
 
-function allMoves(side){
-  const m=[];
-  for(let r=0;r<8;r++){
-    for(let c=0;c<8;c++){
-      if(sideOf(board[r][c])===side){
-        for(const[tr,tc] of getLegalMoves(r,c)){
-          m.push([r,c,tr,tc]);
+function allMoves(side) {
+  const m = [];
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (sideOf(board[r][c]) === side) {
+        for (const [tr, tc] of getLegalMoves(r, c)) {
+          m.push([r, c, tr, tc]);
         }
       }
     }
   }
-  return m.sort((a,b)=>{
-    const pecaAtacante=board[a[0]][a[1]]?.toLowerCase();
-    const pecaAlvo=board[a[2]][a[3]]?.toLowerCase();
-    const pecaAtacanteB=board[b[0]][b[1]]?.toLowerCase();
-    const pecaAlvoB=board[b[2]][b[3]]?.toLowerCase();
-    let scoreA=0;let scoreB=0;
-    if(pecaAlvo)scoreA=(PV2[pecaAlvo]*10)-PV2[pecaAtacante];
-    if(pecaAlvoB)scoreB=(PV2[pecaAlvoB]*10)-PV2[pecaAtacanteB];
-    return scoreB-scoreA;
-  });
-}
 
-function allMoves(side) {
+  // NOVA LÓGICA DE ORDENAÇÃO: MVV-LVA (Most Valuable Victim - Least Valuable Aggressor)
+  return m.sort((a, b) => {
+    const pecaAtacante = board[a[0]][a[1]]?.toLowerCase();
+    const pecaAlvo = board[a[2]][a[3]]?.toLowerCase();
+    const pecaAtacanteB = board[b[0]][b[1]]?.toLowerCase();
+    const pecaAlvoB = board[b[2]][b[3]]?.toLowerCase();
+
+    let scoreA = 0;
+    let scoreB = 0;
+
+    // Se for captura, ganha muitos pontos na fila de análise
+    if (pecaAlvo) scoreA = (PV2[pecaAlvo] * 10) - PV2[pecaAtacante];
+    if (pecaAlvoB) scoreB = (PV2[pecaAlvoB] * 10) - PV2[pecaAtacanteB];
+
+    // Lances que dão xeque também ganham prioridade (opcional, mas forte)
+    return scoreB - scoreA;
+  });
+}function allMoves(side) {
   const m = [];
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
@@ -1041,15 +1057,18 @@ function minimax(depth,alpha,beta,max){
   else{let best=Infinity;for(const[fr,fc,tr,tc]of moves){const sv=makeE(fr,fc,tr,tc);if(!sv)continue;best=Math.min(best,minimax(depth-1,alpha,beta,true));undoE(fr,fc,tr,tc,sv);beta=Math.min(beta,best);if(beta<=alpha)break;}return best;}
 }
 
-function doComputerMove(){
+async function doComputerMove(){
   if(!gameActive)return;
   const side=turn,moves=allMoves(side);if(!moves.length)return;
   let best=null,bestVal=side==='w'?-Infinity:Infinity;
-  for(const[fr,fc,tr,tc]of moves){
+  for(let i=0;i<moves.length;i++){
+    const[fr,fc,tr,tc]=moves[i];
     const sv=makeE(fr,fc,tr,tc);if(!sv)continue;
     const val=minimax(engineDepth-1,-Infinity,Infinity,side==='b')+(Math.random()-.5)*engineNoise;
     undoE(fr,fc,tr,tc,sv);
     if(side==='w'?val>bestVal:val<bestVal){bestVal=val;best=[fr,fc,tr,tc];}
+    // YIELD SUPER AGRESSIVO: pausa de 20ms a cada lance para evitar travamento completo
+    await new Promise(r=>setTimeout(r,20));
   }
   if(!best&&moves.length)best=moves[Math.floor(Math.random()*moves.length)];
   if(best)doMove(...best);
@@ -1361,7 +1380,7 @@ function startGame(){
   document.getElementById('opening-box').textContent='—';
   renderBoard();updateMoveList();updateCaptured();updateStatus();
   if(clockEnabled)startClock();
-  if(wi===4)setTimeout(doComputerMove,400);
+  if(wi===4)setTimeout(async()=>await doComputerMove(),800);
 }
 
 function resignGame(){
@@ -1402,9 +1421,6 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 // ═══════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════
-// ... (final da sua última função)
-
-// GARANTA QUE O FINAL DO SCRIPT ESTEJA EXATAMENTE ASSIM:
 initBoard();
 initSandbox();
 renderCoords();
