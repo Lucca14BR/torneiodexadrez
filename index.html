@@ -122,8 +122,31 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
 .pgn-text{background:var(--dark);color:#7aff7a;border-radius:6px;padding:12px;font-family:monospace;font-size:12px;white-space:pre-wrap;max-height:260px;overflow-y:auto;margin-bottom:12px;min-width:min(480px,80vw)}
 .fen-input{width:100%;border:2px solid var(--dark);border-radius:6px;padding:7px 10px;font-family:monospace;font-size:12px;background:var(--bg);color:var(--dark);margin-bottom:6px}
 .info-box{background:var(--card);border-radius:10px;padding:14px 18px;border:1px solid var(--border);font-size:13px;color:#555;line-height:1.8}
-.eval-bar-vertical{width:14px;background:#1a1a1a;border-radius:4px;position:relative;overflow:hidden;border:2px solid #000;align-self:stretch}
+.eval-bar-vertical{width:14px;background:linear-gradient(to top,#1a1a1a,#333);border-radius:4px;position:relative;overflow:hidden;border:2px solid #444;align-self:stretch;box-shadow:inset 0 0 4px rgba(0,0,0,0.8)}
 .eval-bar-fill{width:100%;background:#fff;position:absolute;bottom:0;transition:height .5s ease}
+
+/* ═══ GALERIA DE BOTS ═══ */
+.bots-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px;padding:16px;background:rgba(255,255,255,0.02);border-radius:8px}
+.bot-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.bot-card:hover{border-color:var(--gold);background:rgba(212,169,106,0.1);transform:translateY(-4px)}
+.bot-avatar{font-size:48px;width:70px;height:70px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:50%;border:2px solid var(--gold)}
+.bot-name{font-family:'Bebas Neue',cursive;font-size:14px;color:var(--gold);font-weight:900;letter-spacing:1px}
+.bot-rating{font-size:11px;color:#777}
+.bot-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:999;align-items:center;justify-content:center}
+.bot-modal.show{display:flex}
+.bot-modal-content{background:var(--card);border:2px solid var(--gold);border-radius:12px;padding:32px;max-width:420px;text-align:center;animation:slideUp .3s ease;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.bot-modal-avatar{font-size:80px;margin-bottom:16px}
+.bot-modal-name{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--gold);letter-spacing:2px;margin-bottom:8px}
+.bot-modal-rating{font-size:14px;color:#888;margin-bottom:16px}
+.bot-modal-style{display:inline-block;background:rgba(212,169,106,0.2);border:1px solid var(--gold);color:var(--gold);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:16px}
+.bot-modal-desc{font-size:13px;color:#aaa;line-height:1.8;margin-bottom:24px;padding:0 8px}
+.bot-modal-btns{display:flex;gap:8px;justify-content:center}
+.bot-modal-btns button{padding:10px 24px;border:none;border-radius:6px;font-family:'Bebas Neue',cursive;font-size:14px;cursor:pointer;transition:all .2s;letter-spacing:1px}
+.bot-play-btn{background:var(--gold);color:var(--dark);font-weight:900}
+.bot-play-btn:hover{background:#d4a96a;transform:scale(1.05)}
+.bot-close-btn{background:var(--border);color:#777}
+.bot-close-btn:hover{background:#444;color:#ddd}
 </style>
 </head>
 <body>
@@ -134,7 +157,8 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="showTab('jogadores',this)">Jogadores</button>
+  <button class="tab active" onclick="showTab('desafio',this)">Desafio</button>
+  <button class="tab" onclick="showTab('jogadores',this)">Jogadores</button>
   <button class="tab" onclick="showTab('tabuleiro',this)">Tabuleiro</button>
   <button class="tab" onclick="showTab('estudo',this)">Análise</button>
   <button class="tab" onclick="showTab('historico',this)">Histórico</button>
@@ -142,8 +166,46 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
   <button class="tab" onclick="showTab('tabela',this)">Classificação</button>
 </div>
 
+<!-- DESAFIO: GALERIA DE BOTS -->
+<div id="tab-desafio" class="section visible">
+  <div style="text-align:center;margin-bottom:24px">
+    <h2 style="color:var(--gold);font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:2px;margin:0 0 8px">DESAFIE OS MESTRES</h2>
+    <p style="color:#888;font-size:12px">Escolha um bot e teste sua habilidade no xadrez</p>
+  </div>
+  <div class="bots-gallery" id="bots-gallery"></div>
+</div>
+
+<!-- MODAL BOT INFO -->
+<div id="bot-modal" class="bot-modal" onclick="closeBotModal(event)">
+  <div class="bot-modal-content" onclick="event.stopPropagation()">
+    <div class="bot-modal-avatar" id="bot-modal-avatar">🥚</div>
+    <div class="bot-modal-name" id="bot-modal-name">Ovo</div>
+    <div class="bot-modal-rating" id="bot-modal-rating">Rating: 600</div>
+    <div class="bot-modal-style" id="bot-modal-style">Aleatório</div>
+    <div class="bot-modal-desc" id="bot-modal-desc">Descrição...</div>
+    <div class="bot-modal-btns">
+      <button class="bot-play-btn" onclick="playVsBot()">JOGAR ⚔️</button>
+      <button class="bot-close-btn" onclick="closeBotModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SELEÇÂO DE TEMPO -->
+<div id="time-modal" class="bot-modal" style="display:none" onclick="if(event.target.id==='time-modal')closeTimeModal()">
+  <div class="bot-modal-content" onclick="event.stopPropagation()">
+    <div style="font-size:20px;font-weight:bold;color:var(--gold);margin-bottom:16px">⏱️ Escolha o tempo</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+      <button class="bot-play-btn" style="background:#4a7c59;padding:16px" onclick="startGameVsBot(0)">⏸️ Sem relógio</button>
+      <button class="bot-play-btn" style="background:#d97706;padding:16px" onclick="startGameVsBot(180)">⚡ 3 min (Bullet)</button>
+      <button class="bot-play-btn" style="background:#1f8aed;padding:16px" onclick="startGameVsBot(300)">🎯 5 min (Blitz)</button>
+      <button class="bot-play-btn" style="background:#7c3aed;padding:16px" onclick="startGameVsBot(600)">🧠 10 min (Rápidas)</button>
+    </div>
+    <button class="bot-close-btn" onclick="closeTimeModal()" style="width:100%">Cancelar</button>
+  </div>
+</div>
+
 <!-- JOGADORES -->
-<div id="tab-jogadores" class="section visible">
+<div id="tab-jogadores" class="section">
   <div class="players-grid">
     <div class="player-card"><div class="rank-badge">#1</div><div class="p-avatar" style="background:#d4a96a;border-color:#7a4a1a">🐄</div><div class="p-name">Boinardo</div><div class="p-rating">2534</div><div class="p-label">Rating Rápidas</div><div class="p-tag">🏆 Favorito</div></div>
     <div class="player-card"><div class="rank-badge">#2</div><div class="p-avatar" style="background:#f5deb3;border-color:#cc7700">🐯</div><div class="p-name">Tigran</div><div class="p-rating">2498</div><div class="p-label">Rating Rápidas</div><div class="p-tag">🔥 Perigoso</div></div>
@@ -179,7 +241,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
     </div>
 
     <div class="chess-side">
-      <div class="side-card">
+      <div class="side-card" id="config-card">
         <div class="side-title">Configurar Partida</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <div>
@@ -207,7 +269,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
             <button class="diff-btn" onclick="setDiff(3,this)">Difícil</button>
             <button class="diff-btn" onclick="setDiff(4,this)">Titã 🔥</button>
           </div>
-          <div id="diff-desc" style="font-size:10px;color:#888;text-align:center">Nível Médio: Estrategista</div>
+          <div id="diff-desc" style="font-size:10px;color:#888;text-align:center">🐥 Pinto · Estrategista</div>
         </div>
         <span class="sel-label" style="margin-top:8px">Tempo</span>
         <select class="player-sel" id="sel-time">
@@ -217,8 +279,16 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
         <button class="btn btn-dark btn-full" onclick="startGame()">Nova Partida ♟</button>
       </div>
 
-      <div class="side-card">
-        <div class="side-title">Visual</div>
+      <div class="side-card" id="bot-info-card" style="display:none;background:rgba(212,169,106,0.1);border:2px solid var(--gold)">
+        <div class="side-title" style="color:var(--gold)">Desafiante</div>
+        <div style="text-align:center;padding:12px">
+          <div style="font-size:48px;margin-bottom:8px" id="bot-opponent-emoji">🥚</div>
+          <div style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--gold);letter-spacing:1px;margin-bottom:4px" id="bot-opponent-name">Ovo</div>
+          <div style="font-size:12px;color:#888;margin-bottom:12px" id="bot-opponent-rating">Rating: 600</div>
+        </div>
+      </div>
+
+      <div class="side-card" id="visual-card">
         <select class="player-sel" id="sel-theme" onchange="mudarTema(this.value)">
           <option value="classico">Clássico (Bege)</option>
           <option value="noturno">Noturno 🌙</option>
@@ -246,7 +316,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
         <div class="move-list" id="move-list"><span style="color:#bbb;font-size:11px">Sem lances ainda</span></div>
       </div>
 
-      <div class="side-card">
+      <div class="side-card" id="eval-card">
         <div class="side-title">Avaliação</div>
         <div class="engine-score" id="engine-score">0.0</div>
         <div class="engine-bar"><div class="engine-fill" id="engine-fill" style="width:50%"></div></div>
@@ -389,7 +459,20 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-
 // ═══════════════════════════════════════════════════
 // DADOS GLOBAIS
 // ═══════════════════════════════════════════════════
-const PLAYERS=[{name:'Boinardo',rating:2534,emoji:'🐄'},{name:'Tigran',rating:2498,emoji:'🐯'},{name:'Henrick',rating:2477,emoji:'🐍'},{name:'João Boi',rating:2468,emoji:'🐂'},{name:'Computador',rating:0,emoji:'🤖'}];
+
+// ═══ BOTS - Cada um com personalidade única ═══
+const BOTS=[
+  {id:0,name:'Ovo',rating:600,emoji:'🥚',desc:'Joga aleatoriamente. Perfeito para entender conceitos básicos.',style:'aleatório',depth:1},
+  {id:1,name:'Aprendiz',rating:900,emoji:'🐥',desc:'Entende o básico: captura peças livres, evita perder material.',style:'simples',depth:2},
+  {id:2,name:'Estrategista',rating:1400,emoji:'🐥',desc:'Mestre de posição: controla centro, estrutura pielões, desenvolve gradualmente.',style:'posicional',depth:3},
+  {id:3,name:'Tático',rating:1600,emoji:'🦅',desc:'Caçador de combinações: busca ganchos, espiões, garfos e armadilhas táticas.',style:'tático',depth:4},
+  {id:4,name:'Agressivo',rating:1800,emoji:'🔥',desc:'Ataque implacável: sacrifica material para abrir o rei inimigo e atacar sem dó.',style:'agressivo',depth:5},
+  {id:5,name:'Defensivo',rating:1700,emoji:'🛡️',desc:'Fortaleza: rei seguro em bunker, evita ataques, contra-ataca com precisão.',style:'defensivo',depth:4},
+  {id:6,name:'Calculista',rating:2000,emoji:'🧮',desc:'Analisa tudo: profundidade extrema, avalia todas as variantes sem emoção.',style:'forte',depth:5},
+  {id:7,name:'Dragão',rating:2200,emoji:'🐲',desc:'Titã supremo: combina força bruta com estratégia milimétrica. Praticamente imbatível.',style:'máximo',depth:5}
+];
+
+const PLAYERS=[{name:'Boinardo',rating:2534,emoji:'🐄'},{name:'Tigran',rating:2498,emoji:'🐯'},{name:'Henrick',rating:2477,emoji:'🐍'},{name:'João Boi',rating:2468,emoji:'🐂'}];
 const tourneyMatches=[];
 for(let i=0;i<4;i++)for(let j=i+1;j<4;j++)tourneyMatches.push({p1:i,p2:j,result:null});
 const gameHistory=[];
@@ -403,18 +486,56 @@ const PST_Q=[[-20,-10,-10,-5,-5,-10,-10,-20],[-10,0,0,0,0,0,0,-10],[-10,0,5,5,5,
 const PST_KM=[[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-20,-30,-30,-40,-40,-30,-30,-20],[-10,-20,-20,-20,-20,-20,-20,-10],[20,20,0,0,0,0,20,20],[20,30,10,0,0,10,30,20]];
 const PST_KE=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,20,20,0,0,0],[0,0,0,20,20,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];
 const OPENINGS={'e2e4':'Peão do Rei','d2d4':'Peão da Dama','c2c4':'Inglesa','g1f3':'Réti','e2e4 e7e5':'Defesa ao Peão do Rei','e2e4 c7c5':'Siciliana','e2e4 e7e6':'Francesa','e2e4 c7c6':'Caro-Kann','e2e4 d7d5':'Escandinava','e2e4 g8f6':'Alekhine','d2d4 d7d5':'Peão da Dama Declinado','d2d4 g8f6':'Indiana','d2d4 d7d5 c2c4':'Gambit da Dama','e2e4 e7e5 g1f3 b8c6 f1b5':'Ruy Lopez','e2e4 e7e5 g1f3 b8c6 f1c4':'Italiana','e2e4 c7c5 g1f3 d7d6':'Siciliana Najdorf','d2d4 d7d5 c2c4 e7e6':'Gambit da Dama Declinado','d2d4 d7d5 c2c4 d5c4':'Gambit da Dama Aceito'};
+
+// ═══ ABERTURA BLACK LIST (Aberturas fracas para evitar) ═══
+const WEAK_OPENINGS=['e2e4 g8f6']; // Alekhine é fraca demais!
+
 const DIFF={
-  1:{depth:1,noise:200,label:'Profundidade 1 · Iniciante'},
-  2:{depth:2,noise:30,label:'Profundidade 2 · Estrategista'},
-  3:{depth:3,noise:5,label:'Profundidade 3 · Forte'},
-  4:{depth:4,noise:0,label:'Profundidade 4 · Titã Supremo 🔥'}
+  1:{depth:1,noise:200,label:'🥚 Ovo · Iniciante',difficulty:'easy'},
+  2:{depth:3,noise:30,label:'🐥 Pinto · Estrategista',difficulty:'normal'},
+  3:{depth:5,noise:5,label:'🦅 Águia · Forte',difficulty:'hard'},
+  4:{depth:6,noise:0,label:'🐲 Dragão · Titã Supremo',difficulty:'hard'}
 };
 // ═══════════════════════════════════════════════════
 // ESTADO DO JOGO PRINCIPAL
 // ═══════════════════════════════════════════════════
 let board,turn,selected,possibleMoves,gameActive,lastMove,castling,enPassant,moveHistory,capturedW,capturedB,fullMoveNumber,halfMoveClock;
 let clockW,clockB,clockInterval,clockEnabled,engineEnabled=false,boardFlipped=false;
-let engineDepth=3,engineNoise=30,navIndex=-1,boardSnapshots=[];
+let engineDepth=3,engineNoise=30,navIndex=-1,boardSnapshots=[],botStyle='máximo';
+let engineDifficulty='normal'; // 'easy'=1, 'normal'=3, 'hard'=5
+
+// Tabelas de busca da engine
+let killers=[],histTab={},ttable={};
+let zobristTable={},zobristSeed=9699;
+
+function initZobrist(){
+  zobristTable={};
+  for(let i=0;i<64;i++){
+    for(const p of ['p','n','b','r','q','k','P','N','B','R','Q','K']){
+      zobristSeed=(zobristSeed*2654435761+2246822519)&0xffffffff;
+      zobristTable[i+':'+p]=(zobristSeed>>>0);
+    }
+  }
+}
+initZobrist();
+
+function getZobristHash(){
+  let h=0n;
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=board[r][c];
+    if(p)h^=BigInt(zobristTable[r*8+c+':'+p]||0);
+  }
+  h^=BigInt(turn==='w'?1:0);
+  if(castling.wK)h^=1n;if(castling.wQ)h^=2n;if(castling.bK)h^=4n;if(castling.bQ)h^=8n;
+  return h.toString();
+}
+
+function resetSearch(){
+  killers=Array(128).fill(null).map(()=>[null,null]);
+  histTab={};
+  ttable={}; // Limpar transposition table
+}
+resetSearch(); // Inicializar
 
 // ═══════════════════════════════════════════════════
 // ESTADO DO SANDBOX (ANÁLISE) — SEPARADO DO JOGO REAL
@@ -444,6 +565,126 @@ function showTab(name,btn){
   if(name==='tabuleiro'){renderCoords();renderBoard();}
   if(name==='historico')renderHistory();
   if(name==='estudo'){renderSandoCoords();renderSandoBoard();analisarLinhas();}
+  if(name==='desafio')renderBotsGallery();
+}
+
+// ═══════════════════════════════════════════════════
+// GALERIA DE BOTS
+// ═══════════════════════════════════════════════════
+let selectedBot=null;
+
+function renderBotsGallery(){
+  const gallery=document.getElementById('bots-gallery');
+  if(!gallery)return;
+  gallery.innerHTML='';
+  
+  for(const bot of BOTS){
+    const card=document.createElement('div');
+    card.className='bot-card';
+    card.onclick=()=>showBotModal(bot);
+    card.innerHTML=`
+      <div class="bot-avatar">${bot.emoji}</div>
+      <div class="bot-name">${bot.name}</div>
+      <div class="bot-rating">⭐ ${bot.rating}</div>
+    `;
+    gallery.appendChild(card);
+  }
+}
+
+function showBotModal(bot){
+  selectedBot=bot;
+  document.getElementById('bot-modal-avatar').textContent=bot.emoji;
+  document.getElementById('bot-modal-name').textContent=bot.name;
+  document.getElementById('bot-modal-rating').textContent=`Rating: ${bot.rating}`;
+  document.getElementById('bot-modal-style').textContent=bot.style.toUpperCase();
+  document.getElementById('bot-modal-desc').textContent=bot.desc;
+  document.getElementById('bot-modal').classList.add('show');
+}
+
+function closeBotModal(event){
+  if(event&&event.target.id!=='bot-modal')return;
+  document.getElementById('bot-modal').classList.remove('show');
+  selectedBot=null;
+}
+
+function playVsBot(){
+  if(!selectedBot||!selectedBot.depth){
+    showToast('Selecione um bot primeiro!');
+    return;
+  }
+  // Salvar propriedades do bot ANTES de fechar modal
+  window.botToPlay=JSON.parse(JSON.stringify(selectedBot));
+  closeBotModal();
+  // Abrir modal de seleção de tempo
+  document.getElementById('time-modal').style.display='flex';
+}
+
+function closeTimeModal(){
+  document.getElementById('time-modal').style.display='none';
+  window.botToPlay=null;
+}
+
+function startGameVsBot(timeInSeconds){
+  if(!window.botToPlay){
+    showToast('Erro: Bot não selecionado');
+    return;
+  }
+  
+  const bot=window.botToPlay;
+  closeTimeModal();
+  
+  // ═══ Configurar engine conforme o bot ═══
+  engineDifficulty=bot.depth<=1?'easy':bot.depth<=3?'normal':'hard';
+  engineDepth=bot.depth;
+  botStyle=bot.style;
+  // Noise diminui com dificuldade: Ovo(200) → Dragão(15)
+  engineNoise=bot.depth===1?200:bot.depth===2?150:bot.depth===3?100:bot.depth===4?50:15;
+  
+  // ═══ Iniciar jogo ═══
+  initBoard();
+  gameActive=true;
+  clearInterval(clockInterval);
+  engineEnabled=true;
+  
+  // ═══ Relógio ═══
+  clockEnabled=timeInSeconds>0;
+  clockW=timeInSeconds;
+  clockB=timeInSeconds;
+  updateClockDisplay();
+  
+  // ═══ UI: Esconder config, mostrar bot info ═══
+  document.getElementById('config-card').style.display='none';
+  document.getElementById('eval-card').style.display='none'; // Sem barra de avaliação vs bot
+  const botInfoCard=document.getElementById('bot-info-card');
+  if(botInfoCard){
+    botInfoCard.style.display='block';
+    document.getElementById('bot-opponent-emoji').textContent=bot.emoji;
+    document.getElementById('bot-opponent-name').textContent=bot.name;
+    document.getElementById('bot-opponent-rating').textContent=`Rating: ${bot.rating}`;
+  }
+  
+  // ═══ Status do jogo ═══
+  const statusBox=document.getElementById('status-box');
+  if(statusBox){
+    statusBox.innerHTML=`<strong style="color:var(--gold)">${bot.emoji} ${bot.name}</strong><br><span style="color:#888;font-size:11px">${bot.desc}</span>`;
+  }
+  
+  // ═══ Renderizar tabuleiro ═══
+  document.getElementById('resign-btn').style.display='block';
+  document.getElementById('opening-box').textContent='—';
+  renderCoords();
+  renderBoard();
+  updateMoveList();
+  updateCaptured();
+  updateStatus();
+  updateEngineDisplay();
+  
+  // ═══ Mudar para aba tabuleiro ═══
+  const boardTabBtn=document.querySelectorAll('.tab')[2]; // Índice 2 = Tabuleiro
+  showTab('tabuleiro',boardTabBtn);
+  
+  // ═══ Iniciar relógio ═══
+  if(clockEnabled)startClock();
 }
 
 // ═══════════════════════════════════════════════════
@@ -468,7 +709,7 @@ function restoreSnap(s){
 // DIFICULDADE
 // ═══════════════════════════════════════════════════
 function setDiff(d,btn){
-  const c=DIFF[d];engineDepth=c.depth;engineNoise=c.noise;
+  const c=DIFF[d];engineDepth=c.depth;engineNoise=c.noise;engineDifficulty=c.difficulty;
   document.getElementById('diff-desc').textContent=c.label;
   document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
@@ -624,18 +865,14 @@ function renderSandoBoard(snap){
 // ═══════════════════════════════════════════════════
 function handleClick(r,c){
   if(!gameActive)return;
+  // Bloqueia COMPLETAMENTE enquanto visualiza histórico - impede bugs de turn/relógio
+  if(navIndex!==-1){
+    selected=null;possibleMoves=[];
+    renderBoard();
+    return;
+  }
   const wi=+document.getElementById('sel-white').value,bi=+document.getElementById('sel-black').value;
   if((turn==='w'&&wi===4)||(turn==='b'&&bi===4))return;
-
-  // FIX 3: Se estiver no passado e clicar em uma peça, corta o futuro
-  if(navIndex!==-1){
-    boardSnapshots=boardSnapshots.slice(0,navIndex+1);
-    moveHistory=moveHistory.slice(0,navIndex);
-    restoreSnap(boardSnapshots[boardSnapshots.length-1]);
-    navIndex=-1;
-    selected=null;possibleMoves=[];
-    updateMoveList();
-  }
 
   const p=board[r][c];
   if(selected){
@@ -651,16 +888,8 @@ function handleClick(r,c){
 // CLICK — SANDBOX
 // ═══════════════════════════════════════════════════
 function handleSandoClick(r,c){
-  // Se estiver no passado, corta o futuro
-  if(sandoNavIndex!==-1){
-    sandoSnapshots=sandoSnapshots.slice(0,sandoNavIndex+1);
-    sandoMoveHistory=sandoMoveHistory.slice(0,sandoNavIndex);
-    restoreSandoSnap(sandoSnapshots[sandoSnapshots.length-1]);
-    sandoNavIndex=-1;
-    sandoSelected=null;sandoPossible=[];
-    updateSandoMoveList();
-  }
-
+  // Impede qualquer jogada enquanto estiver visualizando o histórico passado
+  if(sandoNavIndex!==-1){renderSandoBoard();return;}
   const p=sandoBoard[r][c];
   if(sandoSelected){
     const[sr,sc]=sandoSelected;
@@ -825,10 +1054,17 @@ async function doMove(fr,fc,tr,tc){
   turn=turn==='w'?'b':'w';
   playSound(isCap?'capture':'move');
   renderBoard();updateMoveList();updateCaptured();updateStatus();updateOpening();
-  const wi=+document.getElementById('sel-white').value,bi=+document.getElementById('sel-black').value;
-  if(gameActive&&((turn==='w'&&wi===4)||(turn==='b'&&bi===4))){
+  
+  // ═══ CHAMAR BOT SE NECESSÁRIO ═══
+  if(gameActive&&engineEnabled&&turn==='b'){
     document.getElementById('thinking-indicator')?document.getElementById('thinking-indicator').style.display='inline':'';
     setTimeout(async()=>{await doComputerMove();},200);
+  }else{
+    const wi=+document.getElementById('sel-white').value,bi=+document.getElementById('sel-black').value;
+    if(gameActive&&((turn==='w'&&wi===4)||(turn==='b'&&bi===4))){
+      document.getElementById('thinking-indicator')?document.getElementById('thinking-indicator').style.display='inline':'';
+      setTimeout(async()=>{await doComputerMove();},200);
+    }
   }
 }
 
@@ -925,90 +1161,213 @@ function getPST(p,r,c){
 }
 
 function evalBoard(){
-  let s=0;const wP=Array(8).fill(0),bP=Array(8).fill(0);
+  let s=0;
+  
+  // ═══ 1. MATERIAL ═══
+  const wP=Array(8).fill(0),bP=Array(8).fill(0);
   for(let r=0;r<8;r++)for(let c=0;c<8;c++){
     const p=board[r][c];if(!p)continue;
     const v=(PV2[p.toLowerCase()]||0)+getPST(p,r,c);
     s+=isW(p)?v:-v;
     if(p==='P')wP[c]++;if(p==='p')bP[c]++;
   }
+  
+  // ═══ 2. ESTRUTURA DE PEÕES ═══
   for(let c=0;c<8;c++){
-    if(wP[c]>1)s-=20*(wP[c]-1);if(wP[c]===1&&(c===0||wP[c-1]===0)&&(c===7||wP[c+1]===0))s-=15;
-    if(bP[c]>1)s+=20*(bP[c]-1);if(bP[c]===1&&(c===0||bP[c-1]===0)&&(c===7||bP[c+1]===0))s+=15;
+    // Peões dobrados (penalidade)
+    if(wP[c]>1)s-=20*(wP[c]-1);
+    if(bP[c]>1)s+=20*(bP[c]-1);
+    
+    // Peões isolados (penalidade maior)
+    if(wP[c]===1&&(c===0||wP[c-1]===0)&&(c===7||wP[c+1]===0))s-=25;
+    if(bP[c]===1&&(c===0||bP[c-1]===0)&&(c===7||bP[c+1]===0))s+=25;
+    
+    // Peões passados (bônus grande!)
+    const wAdvance=wP[c]>0&&bP[c]===0&&(c===0||bP[c-1]===0)&&(c===7||bP[c+1]===0)?1:0;
+    const bAdvance=bP[c]>0&&wP[c]===0&&(c===0||wP[c-1]===0)&&(c===7||wP[c+1]===0)?1:0;
+    if(wAdvance)s+=50;if(bAdvance)s-=50;
   }
-  // BÔNUS DE DESENVOLVIMENTO (Evita que o robô fique com as peças presas na 1ª e 8ª linha)
-  for (let c of [1, 2, 5, 6]) { // Colunas de Cavalos e Bispos
-    if (board[7][c] === null) s += 10; // Bônus para brancas desenvolverem
-    if (board[0][c] === null) s -= 10; // Bônus para pretas desenvolverem
+  
+  // ═══ 3. PEÕES AVANÇADOS (Rank 5-7 para brancos, 2-4 para pretos) ═══
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=board[r][c];
+    if(p==='P'&&r<=3)s+=5*(4-r); // Peão branco avançado
+    if(p==='p'&&r>=4)s-=5*(r-3); // Peão preto avançado
   }
-
-  // BÔNUS DE CENTRO (Controlar o centro é vida!)
-  const centro = [[3,3],[3,4],[4,3],[4,4]];
-  centro.forEach(([r,c]) => {
-    if (sideOf(board[r][c]) === 'w') s += 20;
-    if (sideOf(board[r][c]) === 'b') s -= 20;
+  
+  // ═══ 4. DESENVOLVIMENTO ═══
+  for(let c of [1,2,5,6]){
+    if(board[7][c]===null)s+=12; // Brancas desenvolveram
+    if(board[0][c]===null)s-=12; // Pretas desenvolveram
+  }
+  
+  // ═══ 5. CONTROLE DO CENTRO ═══
+  const centro=[[3,3],[3,4],[4,3],[4,4]];
+  const centroExp=[[2,2],[2,3],[2,4],[2,5],[3,2],[3,5],[4,2],[4,5],[5,2],[5,3],[5,4],[5,5]];
+  
+  centro.forEach(([r,c])=>{
+    if(sideOf(board[r][c])==='w')s+=30;
+    if(sideOf(board[r][c])==='b')s-=30;
   });
+  
+  centroExp.forEach(([r,c])=>{
+    if(sideOf(board[r][c])==='w')s+=8;
+    if(sideOf(board[r][c])==='b')s-=8;
+  });
+  
+  // ═══ 6. MOBILIDADE (Número de movimentos) ═══
+  const wMoves=allMoves('w').length;
+  const bMoves=allMoves('b').length;
+  const mobilityDiff=(wMoves-bMoves)*2;
+  s+=mobilityDiff;
+  
+  // ═══ 7. SEGURANÇA DO REI ═══
+  // Bônus adicional para castle rights
+  if(castling.wK)s+=15;if(castling.wQ)s+=15;
+  if(castling.bK)s-=15;if(castling.bQ)s-=15;
+  
+  // ═══ 8. TORTE (Torre no 7º rank) ═══
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=board[r][c];
+    if(p==='R'&&r===6)s+=40; // Torre branca no 7º
+    if(p==='r'&&r===1)s-=40; // Torre preta no 2º
+  }
+  
+  // ═══ 9. BISPO DE COR OPOSTA EM FINAL (Vantagem menor) ═══
+  // Simplificado: se falta rainha e poucos peões, favor diagonal
+  let wBishopLight=0,wBishopDark=0,bBishopLight=0,bBishopDark=0;
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=board[r][c];
+    const light=(r+c)%2===0;
+    if(p==='B')light?wBishopLight++:wBishopDark++;
+    if(p==='b')light?bBishopLight++:bBishopDark++;
+  }
+  
+  // Penalidade por bispo de cor única em final
+  if(wBishopLight+bBishopLight===1||(wBishopDark+bBishopDark===1&&(wBishopLight+bBishopLight)===0)){
+    const totalMat=wP.reduce((a,b)=>a+b)+bP.reduce((a,b)=>a+b);
+    if(totalMat<4)s*=0.7; // Draw tendency
+  }
+  
   return s;
 }
 
-function allMoves(side) {
-  const m = [];
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      if (sideOf(board[r][c]) === side) {
-        for (const [tr, tc] of getLegalMoves(r, c)) {
-          m.push([r, c, tr, tc]);
-        }
-      }
+// ═══ AVALIAÇÃO BASEADA NO ESTILO DO BOT ═══
+function findKing(side){
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=board[r][c];
+    if((side==='w'&&p==='K')||(side==='b'&&p==='k'))return[r,c];
+  }
+  return[7,4]; // fallback
+}
+
+function evalBoardWithStyle(){
+  let eval_base=evalBoard();
+  
+  if(botStyle==='aleatório') return eval_base*(0.5+Math.random()); // Bem aleatório
+  if(botStyle==='simples') return eval_base*0.8; // Ignora nuances, só material
+  
+  // ═══ POSICIONAL ═══
+  if(botStyle==='posicional'){
+    eval_base+=200; // Valoriza posição
+    // Penaliza mobil limitada
+    const moves=allMoves(turn).length;
+    if(moves<10)eval_base-=100;
+    return eval_base;
+  }
+  
+  // ═══ TÁTICO ═══
+  if(botStyle==='tático'){
+    eval_base+=150; // Favoriza capturas (já feito via scoreMove) e táticas simples
+    // Bonus por ter mais peças controlando casas
+    const myMoves=allMoves(turn).length;
+    if(myMoves>15)eval_base+=50; // Muito opções = bom
+    return eval_base;
+  }
+  
+  // ═══ AGRESSIVO ═══
+  if(botStyle==='agressivo'){
+    // Busca ataques ao rei inimigo
+    const opp=turn==='w'?'b':'w';
+    const oppKing=findKing(opp);
+    const kr=oppKing[0],kc=oppKing[1];
+    let attackScore=0;
+    
+    // Peças perto do rei inimigo = bom
+    for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+      const p=board[r][c];
+      if(!p||sideOf(p)!==turn)continue;
+      const dist=Math.abs(r-kr)+Math.abs(c-kc);
+      if(dist<5)attackScore+=20*(5-dist);
+    }
+    
+    return eval_base+attackScore;
+  }
+  
+  // ═══ DEFENSIVO ═══
+  if(botStyle==='defensivo'){
+    const myKing=findKing(turn);
+    const kr=myKing[0],kc=myKing[1];
+    let defenseScore=0;
+    
+    // Castling rights (segurança) = super importante
+    if(turn==='w'){
+      if(castling.wK||castling.wQ)defenseScore+=200;
+    }else{
+      if(castling.bK||castling.bQ)defenseScore+=200;
+    }
+    
+    // Peças defendendo o rei = bom
+    for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+      const p=board[r][c];
+      if(!p||sideOf(p)!==turn)continue;
+      const dist=Math.abs(r-kr)+Math.abs(c-kc);
+      if(dist<4)defenseScore+=15*(4-dist);
+    }
+    
+    // Penaliza muitos ataques ao seu rei
+    const underAttackCount=allMoves(turn==='w'?'b':'w',0).filter(([fr,fc,tr,tc])=>{
+      return tr===kr&&tc===kc;
+    }).length;
+    defenseScore-=underAttackCount*100;
+    
+    return eval_base+defenseScore;
+  }
+  
+  // ═══ FORTE (Calculista/Dragão) ═══
+  return eval_base;
+}
+
+function scoreMove(fr,fc,tr,tc,ply){
+  const cap=board[tr][tc],ag=board[fr][fc];
+  // ═══ Capturas sempre primeiro ═══
+  if(cap){
+    // MVV-LVA: Most Valuable Victim - Least Valuable Attacker
+    const vv=PV2[cap.toLowerCase()]||0;
+    const va=PV2[ag?.toLowerCase()]||0;
+    return 1000000+(vv*10-va); // 10M + bonus/penalty
+  }
+  
+  // ═══ Killer moves segundo ═══
+  const key=fr*512+fc*64+tr*8+tc;
+  if(ply<128&&killers[ply]){
+    if(killers[ply][0]===key)return 500000; // Killer #1
+    if(killers[ply][1]===key)return 450000; // Killer #2
+  }
+  
+  // ═══ History heuristic terceiro ═══
+  // Bonus: lances que causaram cutoffs em posições similares
+  return (histTab[fr*64+tc]||0);
+}
+
+function allMoves(side,ply=0){
+  const m=[];
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    if(sideOf(board[r][c])===side){
+      for(const[tr,tc]of getLegalMoves(r,c))m.push([r,c,tr,tc]);
     }
   }
-
-  // NOVA LÓGICA DE ORDENAÇÃO: MVV-LVA (Most Valuable Victim - Least Valuable Aggressor)
-  return m.sort((a, b) => {
-    const pecaAtacante = board[a[0]][a[1]]?.toLowerCase();
-    const pecaAlvo = board[a[2]][a[3]]?.toLowerCase();
-    const pecaAtacanteB = board[b[0]][b[1]]?.toLowerCase();
-    const pecaAlvoB = board[b[2]][b[3]]?.toLowerCase();
-
-    let scoreA = 0;
-    let scoreB = 0;
-
-    // Se for captura, ganha muitos pontos na fila de análise
-    if (pecaAlvo) scoreA = (PV2[pecaAlvo] * 10) - PV2[pecaAtacante];
-    if (pecaAlvoB) scoreB = (PV2[pecaAlvoB] * 10) - PV2[pecaAtacanteB];
-
-    // Lances que dão xeque também ganham prioridade (opcional, mas forte)
-    return scoreB - scoreA;
-  });
-}function allMoves(side) {
-  const m = [];
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      if (sideOf(board[r][c]) === side) {
-        for (const [tr, tc] of getLegalMoves(r, c)) {
-          m.push([r, c, tr, tc]);
-        }
-      }
-    }
-  }
-
-  // NOVA LÓGICA DE ORDENAÇÃO: MVV-LVA (Most Valuable Victim - Least Valuable Aggressor)
-  return m.sort((a, b) => {
-    const pecaAtacante = board[a[0]][a[1]]?.toLowerCase();
-    const pecaAlvo = board[a[2]][a[3]]?.toLowerCase();
-    const pecaAtacanteB = board[b[0]][b[1]]?.toLowerCase();
-    const pecaAlvoB = board[b[2]][b[3]]?.toLowerCase();
-
-    let scoreA = 0;
-    let scoreB = 0;
-
-    // Se for captura, ganha muitos pontos na fila de análise
-    if (pecaAlvo) scoreA = (PV2[pecaAlvo] * 10) - PV2[pecaAtacante];
-    if (pecaAlvoB) scoreB = (PV2[pecaAlvoB] * 10) - PV2[pecaAtacanteB];
-
-    // Lances que dão xeque também ganham prioridade (opcional, mas forte)
-    return scoreB - scoreA;
-  });
+  return m.sort((a,b)=>scoreMove(b[0],b[1],b[2],b[3],ply)-scoreMove(a[0],a[1],a[2],a[3],ply));
 }
 
 function makeE(fr,fc,tr,tc){
@@ -1034,81 +1393,280 @@ function undoE(fr,fc,tr,tc,sv){
   enPassant=sv.ep;Object.assign(castling,sv.cast);halfMoveClock=sv.hm;
 }
 
-function quiesce(alpha,beta,max){
-  const stand=evalBoard();
+function quiesce(alpha,beta,max,depth=0,ply=0){
+  if(depth>10)return evalBoardWithStyle();
+  const stand=evalBoardWithStyle();
   if(max){if(stand>=beta)return beta;alpha=Math.max(alpha,stand);}
   else{if(stand<=alpha)return alpha;beta=Math.min(beta,stand);}
   const side=max?'w':'b';
-  const caps=allMoves(side).filter(([fr,fc,tr,tc])=>board[tr][tc]);
+  const caps=allMoves(side,ply).filter(([fr,fc,tr,tc])=>board[tr][tc]);
   for(const[fr,fc,tr,tc]of caps){
     const sv=makeE(fr,fc,tr,tc);if(!sv)continue;
-    const sc=quiesce(alpha,beta,!max);undoE(fr,fc,tr,tc,sv);
+    const sc=quiesce(alpha,beta,!max,depth+1,ply+1);undoE(fr,fc,tr,tc,sv);
     if(max){alpha=Math.max(alpha,sc);if(alpha>=beta)return beta;}
     else{beta=Math.min(beta,sc);if(beta<=alpha)return alpha;}
   }
   return max?alpha:beta;
 }
 
-function minimax(depth,alpha,beta,max){
-  if(depth===0)return quiesce(alpha,beta,max);
-  const side=max?'w':'b';const moves=allMoves(side);
+function minimax(depth,alpha,beta,max,ply=0,moveCount=0){
+  const hash=getZobristHash();
+  const ttEntry=ttable[hash];
+  
+  // ═══ TRANSPOSITION TABLE LOOKUP ═══
+  if(ttEntry&&ttEntry.depth>=depth){
+    if(ttEntry.flag==='exact')return ttEntry.value;
+    if(ttEntry.flag==='lower')alpha=Math.max(alpha,ttEntry.value);
+    if(ttEntry.flag==='upper')beta=Math.min(beta,ttEntry.value);
+    if(alpha>=beta)return ttEntry.value;
+  }
+  
+  // ═══ QUIESCE AT DEPTH 0 ═══
+  if(depth===0)return quiesce(alpha,beta,max,0,ply);
+  
+  const side=max?'w':'b';
+  const moves=allMoves(side,ply);
   if(!moves.length)return isInCheck(side)?(max?-99999:99999):0;
-  if(max){let best=-Infinity;for(const[fr,fc,tr,tc]of moves){const sv=makeE(fr,fc,tr,tc);if(!sv)continue;best=Math.max(best,minimax(depth-1,alpha,beta,false));undoE(fr,fc,tr,tc,sv);alpha=Math.max(alpha,best);if(alpha>=beta)break;}return best;}
-  else{let best=Infinity;for(const[fr,fc,tr,tc]of moves){const sv=makeE(fr,fc,tr,tc);if(!sv)continue;best=Math.min(best,minimax(depth-1,alpha,beta,true));undoE(fr,fc,tr,tc,sv);beta=Math.min(beta,best);if(beta<=alpha)break;}return best;}
+  
+  let flag='upper',best=max?-Infinity:Infinity;
+  const origAlpha=alpha;
+  
+  for(let idx=0;idx<moves.length;idx++){
+    const[fr,fc,tr,tc]=moves[idx];
+    const sv=makeE(fr,fc,tr,tc);
+    if(!sv)continue;
+    
+    let val;
+    const isCapture=!!sv.cap;
+    const newDepth=depth-1;
+    
+    // ═══ LATE MOVE REDUCTION (LMR) ═══
+    // Reduz profundidade para movimentos "quietos" após alguns movimentos
+    if(depth>=3&&idx>=4&&!isCapture){
+      if(max)val=minimax(newDepth-1,alpha,alpha+1,false,ply+1,idx);
+      else val=minimax(newDepth-1,beta-1,beta,true,ply+1,idx);
+      
+      if(max?val>alpha:val<beta){
+        // Re-search com profundidade completa
+        val=minimax(newDepth,alpha,beta,!max,ply+1,idx);
+      }
+    }else{
+      val=minimax(newDepth,alpha,beta,!max,ply+1,idx);
+    }
+    
+    undoE(fr,fc,tr,tc,sv);
+    
+    if(max){
+      best=Math.max(best,val);
+      if(val>alpha){
+        alpha=val;
+        if(alpha>=beta){
+          // ═══ KILLER MOVE UPDATE ═══
+          const key=fr*512+fc*64+tr*8+tc;
+          if(killers[ply][0]!==key){killers[ply][1]=killers[ply][0];killers[ply][0]=key;}
+          flag='lower';
+          break;
+        }
+      }
+    }else{
+      best=Math.min(best,val);
+      if(val<beta){
+        beta=val;
+        if(beta<=alpha){
+          const key=fr*512+fc*64+tr*8+tc;
+          if(killers[ply][0]!==key){killers[ply][1]=killers[ply][0];killers[ply][0]=key;}
+          flag='lower';
+          break;
+        }
+      }
+    }
+  }
+  
+  // ═══ TRANSPOSITION TABLE STORE ═══
+  if(best!==Infinity&&best!==-Infinity){
+    if(best<=origAlpha)flag='upper';
+    else if(best>=beta)flag='lower';
+    else flag='exact';
+    
+    if(!ttable[hash]||ttable[hash].depth<depth){
+      ttable[hash]={value:best,depth,flag};
+    }
+  }
+  
+  return best;
 }
 
-async function doComputerMove(){
+function doComputerMove(){
   if(!gameActive)return;
-  const side=turn,moves=allMoves(side);if(!moves.length)return;
-  let best=null,bestVal=side==='w'?-Infinity:Infinity;
-  for(let i=0;i<moves.length;i++){
-    const[fr,fc,tr,tc]=moves[i];
-    const sv=makeE(fr,fc,tr,tc);if(!sv)continue;
-    const val=minimax(engineDepth-1,-Infinity,Infinity,side==='b')+(Math.random()-.5)*engineNoise;
-    undoE(fr,fc,tr,tc,sv);
-    if(side==='w'?val>bestVal:val<bestVal){bestVal=val;best=[fr,fc,tr,tc];}
-    // YIELD SUPER AGRESSIVO: pausa de 20ms a cada lance para evitar travamento completo
-    await new Promise(r=>setTimeout(r,20));
+  resetSearch();
+  const side=turn;
+  let bestMove=null;
+
+  // Usar engineDepth se definido (vs bot), senão usar engineDifficulty
+  let depth=engineDepth||1;
+  if(!engineDepth){
+    depth=engineDifficulty==='easy'?1:engineDifficulty==='hard'?5:3;
   }
-  if(!best&&moves.length)best=moves[Math.floor(Math.random()*moves.length)];
-  if(best)doMove(...best);
+  
+  // ═══ VERIFICAR ABERTURA (evitar fracas) ═══
+  const moveNotation=moveHistory.map(m=>m.from+m.to).join(' ');
+  if(WEAK_OPENINGS.includes(moveNotation)){
+    // Forçar movimento diferente
+    const moves=allMoves(side,0).filter(([fr,fc,tr,tc])=>{
+      const F='abcdefgh',RK='87654321';
+      const moveStr=F[fc]+RK[fr]+F[tc]+RK[tr];
+      return moveStr!==moveNotation.split(' ').pop();
+    });
+    if(moves.length>0){
+      if(bestMove===null)bestMove=moves[0];
+    }
+  }
+  
+  // ═══ ITERATIVE DEEPENING (apenas até profundidade 4 para não travar) ═══
+  const maxIterDeep=Math.min(depth,4); // Cap iterative deepening em 4
+  
+  for(let d=1;d<=maxIterDeep;d++){
+    // ═══ CACHE LIMIT para evitar lag ═══
+    if(Object.keys(ttable).length>100000)ttable={}; // Reset se cache muito grande
+    
+    const moves=allMoves(side,0);if(!moves.length)return;
+    let iterBest=null,iterVal=side==='w'?-Infinity:Infinity;
+
+    for(const[fr,fc,tr,tc]of moves){
+      const sv=makeE(fr,fc,tr,tc);if(!sv)continue;
+      turn=side==='w'?'b':'w';
+      const raw=minimax(d-1,-Infinity,Infinity,side==='b',1);
+      turn=side;undoE(fr,fc,tr,tc,sv);
+      const val=raw+(Math.random()-.5)*engineNoise;
+      if(side==='w'?val>iterVal:val<iterVal){iterVal=val;iterBest=[fr,fc,tr,tc];}
+    }
+    if(iterBest)bestMove=iterBest;
+  }
+  
+  // ═══ Se ainda precisa buscar mais fundo do que 4, faz uma busca direta na profundidade final ═══
+  if(depth>maxIterDeep){
+    // ═══ CACHE LIMIT para evitar lag ═══
+    if(Object.keys(ttable).length>100000)ttable={}; // Reset se cache muito grande
+    
+    const moves=allMoves(side,0);if(!moves.length)return;
+    let finalBest=null,finalVal=side==='w'?-Infinity:Infinity;
+
+    for(const[fr,fc,tr,tc]of moves){
+      const sv=makeE(fr,fc,tr,tc);if(!sv)continue;
+      turn=side==='w'?'b':'w';
+      const raw=minimax(depth-1,-Infinity,Infinity,side==='b',1);
+      turn=side;undoE(fr,fc,tr,tc,sv);
+      const val=raw+(Math.random()-.5)*engineNoise;
+      if(side==='w'?val>finalVal:val<finalVal){finalVal=val;finalBest=[fr,fc,tr,tc];}
+    }
+    if(finalBest)bestMove=finalBest;
+  }
+
+  if(!bestMove){const m=allMoves(side);if(m.length)bestMove=m[0];}
+  if(bestMove)doMove(...bestMove);
 }
 
 function updateEngineDisplay(){
   const sc=evalBoard()/100;
-  const disp=sc>=0?'+'+sc.toFixed(1):sc.toFixed(1);
+  let normalized=Math.max(-3,Math.min(3,sc)); // Clamp entre -3 e +3
+  normalized=Math.atan(normalized/2.5)*2/Math.PI; // Sigmoid para melhor visualização
+  const height=Math.max(5,Math.min(95,(50+normalized*50)));
+  
+  // Cor da barra: preto (preta advantage) -> branco (branca advantage)
+  let barColor='#fff';
+  if(normalized<-0.3)barColor='#222'; // Preta vence
+  else if(normalized<-0.1)barColor='#666'; // Preta vantagem
+  else if(normalized>0.3)barColor='#fff'; // Branca vence
+  else if(normalized>0.1)barColor='#ddd'; // Branca vantagem
+  else barColor='#aaa'; // Equal
+  
   const scoreEl=document.getElementById('engine-score');
-  const fillEl=document.getElementById('engine-fill');
-  const hintEl=document.getElementById('engine-hint');
   const barEl=document.getElementById('eval-bar-fill');
-  if(scoreEl)scoreEl.textContent=disp;
-  if(fillEl)fillEl.style.width=Math.max(5,Math.min(95,50+sc*3))+'%';
-  if(hintEl)hintEl.textContent='Turno: '+(turn==='w'?'Brancas':'Pretas');
-  if(barEl)barEl.style.height=Math.max(5,Math.min(95,50+sc*5))+'%';
+  if(scoreEl){
+    let symbol='';
+    if(sc>1)symbol='⪰ ';
+    else if(sc<-1)symbol='⪯ ';
+    const disp=(sc>=0?'+':'')+sc.toFixed(2);
+    scoreEl.textContent=symbol+disp;
+  }
+  if(barEl){
+    barEl.style.height=height+'%';
+    barEl.style.background=barColor;
+  }
 }
 
 // ═══════════════════════════════════════════════════
 // ENGINE — ANÁLISE DO SANDBOX (usa sandoBoard)
 // ═══════════════════════════════════════════════════
 function sandoEvalBoard(){
-  let s = 0;
-  for(let r=0; r<8; r++) {
-    for(let c=0; c<8; c++) {
-      const p = sandoBoard[r][c];
-      if(!p) continue;
-      // Usa os mesmos valores de peça do jogo principal (PV2)
-      const v = PV2[p.toLowerCase()] || 0;
-      s += isW(p) ? v : -v;
-    }
+  let s=0;
+  
+  // ═══ 1. MATERIAL ═══
+  const wP=Array(8).fill(0),bP=Array(8).fill(0);
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=sandoBoard[r][c];if(!p)continue;
+    const v=(PV2[p.toLowerCase()]||0)+getPST(p,r,c);
+    s+=isW(p)?v:-v;
+    if(p==='P')wP[c]++;if(p==='p')bP[c]++;
   }
   
-  // Bônus de Centro para o Sandbox
-  const centro = [[3,3],[3,4],[4,3],[4,4]];
-  centro.forEach(([r,c]) => {
-    if (sideOf(sandoBoard[r][c]) === 'w') s += 20;
-    if (sideOf(sandoBoard[r][c]) === 'b') s -= 20;
+  // ═══ 2. ESTRUTURA DE PEÕES ═══
+  for(let c=0;c<8;c++){
+    if(wP[c]>1)s-=20*(wP[c]-1);
+    if(bP[c]>1)s+=20*(bP[c]-1);
+    
+    if(wP[c]===1&&(c===0||wP[c-1]===0)&&(c===7||wP[c+1]===0))s-=25;
+    if(bP[c]===1&&(c===0||bP[c-1]===0)&&(c===7||bP[c+1]===0))s+=25;
+    
+    const wAdvance=wP[c]>0&&bP[c]===0&&(c===0||bP[c-1]===0)&&(c===7||bP[c+1]===0)?1:0;
+    const bAdvance=bP[c]>0&&wP[c]===0&&(c===0||wP[c-1]===0)&&(c===7||wP[c+1]===0)?1:0;
+    if(wAdvance)s+=50;if(bAdvance)s-=50;
+  }
+  
+  // ═══ 3. PEÕES AVANÇADOS ═══
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=sandoBoard[r][c];
+    if(p==='P'&&r<=3)s+=5*(4-r);
+    if(p==='p'&&r>=4)s-=5*(r-3);
+  }
+  
+  // ═══ 4. DESENVOLVIMENTO ═══
+  for(let c of [1,2,5,6]){
+    if(sandoBoard[7][c]===null)s+=12;
+    if(sandoBoard[0][c]===null)s-=12;
+  }
+  
+  // ═══ 5. CONTROLE DO CENTRO ═══
+  const centro=[[3,3],[3,4],[4,3],[4,4]];
+  const centroExp=[[2,2],[2,3],[2,4],[2,5],[3,2],[3,5],[4,2],[4,5],[5,2],[5,3],[5,4],[5,5]];
+  
+  centro.forEach(([r,c])=>{
+    if(sideOf(sandoBoard[r][c])==='w')s+=30;
+    if(sideOf(sandoBoard[r][c])==='b')s-=30;
   });
-
+  
+  centroExp.forEach(([r,c])=>{
+    if(sideOf(sandoBoard[r][c])==='w')s+=8;
+    if(sideOf(sandoBoard[r][c])==='b')s-=8;
+  });
+  
+  // ═══ 6. MOBILIDADE ═══
+  const wMoves=sandoAllMoves('w').length;
+  const bMoves=sandoAllMoves('b').length;
+  const mobilityDiff=(wMoves-bMoves)*2;
+  s+=mobilityDiff;
+  
+  // ═══ 7. SEGURANÇA DO REI ═══
+  if(sandoCastling.wK)s+=15;if(sandoCastling.wQ)s+=15;
+  if(sandoCastling.bK)s-=15;if(sandoCastling.bQ)s-=15;
+  
+  // ═══ 8. TORRE NO 7º RANK ═══
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const p=sandoBoard[r][c];
+    if(p==='R'&&r===6)s+=40;
+    if(p==='r'&&r===1)s-=40;
+  }
+  
   return s;
 }
 
@@ -1117,7 +1675,26 @@ function sandoAllMoves(side){
   return m;
 }
 
+function detectBlunder(moveIdx){
+  if(moveIdx<0||moveIdx>=moveHistory.length)return null;
+  const{from,to}=moveHistory[moveIdx];
+  if(!from||!to)return null;
+  const fr=from.charCodeAt(0)-97,fc=from.charCodeAt(1)-48;
+  const tr=to.charCodeAt(0)-97,tc=to.charCodeAt(1)-48;
+  
+  // Restaurar posição anterior ao lance
+  const savedState={board:board.map(r=>[...r]),turn,castling:{...castling},enPassant,halfMoveClock};
+  for(let i=moveIdx-1;i>=0;i--){
+    const m=moveHistory[i];
+    // ... (restauração complexa - usar histórico de snapshots)
+  }
+  
+  // Simplificado: apenas marca como "?" se lance baixar posição muito
+  return null; // Implementado melhor na próxima versão
+}
+
 async function analisarLinhas(){
+  resetSearch();
   const side=sandoTurn;
   const moves=sandoAllMoves(side);
   const box=document.getElementById('linhas-analise');
@@ -1141,10 +1718,10 @@ async function analisarLinhas(){
 
   for(const[fr,fc,tr,tc]of sandoMovesEval){
     const sv=makeE(fr,fc,tr,tc);if(!sv)continue;
-    const val=minimax(2,-Infinity,Infinity,side==='b');
+    const val=minimax(3,-Infinity,Infinity,side==='b');
     undoE(fr,fc,tr,tc,sv);
     avaliacoes.push({move:[fr,fc,tr,tc],score:val});
-    await new Promise(r=>setTimeout(r,1));
+    await new Promise(r=>setTimeout(r,5));
   }
 
   // Restaura o board do jogo real
@@ -1153,13 +1730,26 @@ async function analisarLinhas(){
   avaliacoes.sort((a,b)=>side==='w'?b.score-a.score:a.score-b.score);
   const F='abcdefgh',RK='87654321';
   let html='';
+  const bestScore=avaliacoes[0]?.score||0;
   for(let i=0;i<Math.min(3,avaliacoes.length);i++){
     const m=avaliacoes[i].move;
     const p=sandoBoard[m[0]][m[1]];
     const notation=GLYPHS[p]+' '+F[m[1]]+RK[m[0]]+' → '+F[m[3]]+RK[m[2]];
     const raw=(avaliacoes[i].score/100).toFixed(2);
     const disp=(+raw>=0?'+':'')+raw;
-    html+=`<div style="background:#2c2c2c;font-size:11px;padding:6px;border-radius:4px;display:flex;gap:8px;margin-bottom:4px;border-left:3px solid #7aff7a"><span style="background:#fff;color:#000;padding:1px 4px;border-radius:3px;font-weight:900">${disp}</span><span style="color:#ddd">${notation}</span></div>`;
+    
+    // Move quality indicator
+    let quality='';
+    if(i===0)quality='!'; // Best move
+    else{
+      const diff=Math.abs(avaliacoes[i].score-bestScore);
+      if(diff>300)quality='??'; // Blunder
+      else if(diff>150)quality='?'; // Inaccuracy
+      else if(diff>50)quality='‼'; // Weak
+    }
+    
+    const color=i===0?'#7aff7a':i===1?'#ffcc00':'#ff9970';
+    html+=`<div style="background:#2c2c2c;font-size:11px;padding:6px;border-radius:4px;display:flex;gap:8px;margin-bottom:4px;border-left:3px solid ${color}"><span style="background:#fff;color:#000;padding:1px 4px;border-radius:3px;font-weight:900">${disp}</span><span style="color:#ddd">${notation} ${quality}</span></div>`;
   }
   box.innerHTML=html||'<div style="color:#666;font-size:12px;text-align:center">Sem variantes</div>';
 }
@@ -1271,6 +1861,28 @@ function askPromotion(side){
 // ═══════════════════════════════════════════════════
 function updateStatus(){
   const box=document.getElementById('status-box');
+  
+  // Se é vs bot
+  if(engineEnabled){
+    const opp=turn==='w'?'b':'w';
+    if(!hasLegal(turn)){
+      gameActive=false;clearInterval(clockInterval);document.getElementById('resign-btn').style.display='none';playSound('end');
+      if(isInCheck(turn)){
+        const winner=turn==='w'?'Computador':'Você';
+        const status=turn==='w'?'♛ Xeque-mate!':'Vitória!';
+        box.innerHTML=status+'<br><strong>'+winner+' venceu!</strong>';
+      }else{
+        box.textContent='½ Empate por afogamento!';
+      }
+      return;
+    }
+    if(halfMoveClock>=100){gameActive=false;clearInterval(clockInterval);box.textContent='½ Empate — 50 lances';document.getElementById('resign-btn').style.display='none';return;}
+    if(isInCheck(turn)){const who=turn==='w'?'Você':'Computador';box.innerHTML='⚠ Xeque em <strong>'+who+'</strong>!';playSound('check');return;}
+    const cur=turn==='w'?'Você (Brancas)':'Computador (Pretas)';box.innerHTML='Vez: <strong>'+cur+'</strong>';
+    return;
+  }
+  
+  // Para jogo entre PLAYERS
   const wi=+document.getElementById('sel-white').value,bi=+document.getElementById('sel-black').value;
   const wp=PLAYERS[wi],bp=PLAYERS[bi],opp=turn==='w'?'b':'w';
   if(!hasLegal(turn)){
@@ -1319,10 +1931,10 @@ function updateCaptured(){
 function mudarTema(tema){
   const r=document.documentElement;
   const temas={
-    // As listas foram estendidas para [bg, card, dark, light-sq, dark-sq, white-p, black-p]
+    // As listas foram estendidas para [bg, card, dark, light-sq, dark-sq, white-p, blacsk-p]
     classico:['#e8e0c8','#f5f0e0','#1a1a1a','#f0d9b5','#b58863', '#ffffff', '#1a1a1a'],
-    // No tema noturno, usamos cinza escuro para peças pretas para diferenciar do fundo
-    noturno:['#161512','#262421','#ffffff','#7a7a7a','#333333', '#ffffff', '#808080'], 
+    // No tema noturno, white-p branco, black-p cinza claro
+    noturno:['#161512','#262421','#ffffff','#7a7a7a','#333333', '#ffffff', '#d0d0d0'], 
     oceano:['#2b3135','#363e43','#ffffff','#dee3e6','#8ca2ad', '#ffffff', '#2c3e50'],
     esmeralda:['#212f21','#2e3d2e','#ffffff','#eeeed2','#769656', '#ffffff', '#1a1a1a'],
   };
@@ -1338,7 +1950,11 @@ function mudarTema(tema){
   r.style.setProperty('--white-piece',v[5]);
   r.style.setProperty('--black-piece',v[6]);
   
+  // Force repaint e reaplica as classes das peças
   renderBoard();renderSandoBoard();
+  setTimeout(()=>{
+    document.querySelectorAll('.sq').forEach(sq=>sq.style.color='');
+  },10);
 }
 
 // ═══════════════════════════════════════════════════
@@ -1376,6 +1992,9 @@ function startGame(){
   initBoard();gameActive=true;clearInterval(clockInterval);
   const t=+document.getElementById('sel-time').value;clockEnabled=t>0;clockW=t;clockB=t;updateClockDisplay();
   engineEnabled=(wi===4||bi===4);
+  // Inicializar dificuldade como "normal" (2)
+  const diffBtns=document.querySelectorAll('.diff-btn');
+  if(diffBtns[1])setDiff(2,diffBtns[1]);
   document.getElementById('resign-btn').style.display='block';
   document.getElementById('opening-box').textContent='—';
   renderBoard();updateMoveList();updateCaptured();updateStatus();
@@ -1384,8 +2003,28 @@ function startGame(){
 }
 
 function resignGame(){
-  if(!gameActive)return;gameActive=false;clearInterval(clockInterval);
+  if(!gameActive)return;
+  gameActive=false;
+  clearInterval(clockInterval);
   document.getElementById('resign-btn').style.display='none';
+  
+  // ═══ Restaurar interface ═══
+  document.getElementById('config-card').style.display='block';
+  document.getElementById('eval-card').style.display='block'; // Mostrar avaliação novamente
+  const botInfoCard=document.getElementById('bot-info-card');
+  if(botInfoCard)botInfoCard.style.display='none';
+  
+  // Para jogos vs bot
+  if(engineEnabled){
+    const winner=turn==='w'?'Computador':'Você';
+    const status=turn==='w'?'Pretas venceram!':'Brancas venceram!';
+    document.getElementById('status-box').innerHTML=`<strong style="color:#ff6b6b">${status}</strong><br><span style="color:#888">${winner} venceu!</span>`;
+    playSound('end');
+    renderBoard();
+    return;
+  }
+  
+  // Para jogos entre PLAYERS
   const wi=+document.getElementById('sel-white').value,bi=+document.getElementById('sel-black').value;
   const resigner=turn==='w'?PLAYERS[wi]:PLAYERS[bi],winner=turn==='w'?PLAYERS[bi]:PLAYERS[wi],result=turn==='w'?'0-1':'1-0';
   document.getElementById('status-box').innerHTML=resigner.emoji+' '+resigner.name+' abandonou!<br><strong>'+winner.emoji+' '+winner.name+' venceu!</strong>';
@@ -1427,6 +2066,7 @@ renderCoords();
 renderSandoCoords();
 renderBoard();
 renderSandoBoard();
+renderBotsGallery();
 renderMatches();
 renderStandings();
 toggleEngineConfig();
